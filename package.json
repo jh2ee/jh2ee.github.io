@@ -49,7 +49,6 @@
     "stylelint": "^16.19.1",
     "stylelint-config-standard-scss": "^15.0.1",
 
-    // Notion 게시글 자동 업로드 설정
     "@notionhq/client": "^1.0.4",
     "@types/node-fetch": "^2.6.2",
     "moment": "^2.29.2",
