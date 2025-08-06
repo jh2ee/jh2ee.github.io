@@ -1,0 +1,12 @@
+---
+title: TITLE
+date: YYYY-MM-DD HH:MM:SS +0800
+categories: [Dummy, dummy]
+tags: [dummy]		# TAG는 반드시 소문자로 이루어져야함!
+
+# 최상단 image 추가
+image: /path/to/image-file
+
+math: true
+mermaid: true
+---

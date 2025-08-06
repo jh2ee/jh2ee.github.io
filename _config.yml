@@ -16,10 +16,10 @@ timezone: Asia/Seoul
 
 title: jh2ee's blog # the main title
 
-tagline: 흘러가는 대학원생 # it will display as the subtitle
+tagline: 그냥 대학원생 # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
-  AI 대학원생 기록집
+  그냥 대학원생
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
@@ -28,8 +28,8 @@ url: "https://jh2ee.github.io"
 github:
   username: jh2ee # change to your GitHub username
 
-twitter:
-  username: twitter_username # change to your Twitter username
+# twitter:
+#   username: twitter_username # change to your Twitter username
 
 social:
   # Change to your full name.
@@ -95,7 +95,7 @@ theme_mode: # [light | dark]
 # will be added to all media resources (site avatar, posts' images, audio and video files) paths starting with '/'
 #
 # e.g. 'https://cdn.com'
-cdn: "https://chirpy-img.netlify.app"
+# cdn: "https://chirpy-img.netlify.app"
 
 # the avatar on sidebar, support local or CORS resources
 avatar: "/commons/avatar.jpg"
@@ -150,7 +150,7 @@ pwa:
 paginate: 10
 
 # The base URL of your site
-baseurl: ""
+baseurl: "https://jh2ee.github.io/"
 
 # ------------ The following options are not recommended to be modified ------------------
 

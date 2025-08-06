@@ -1,39 +1,63 @@
-name: "Build and Deploy"
+name: "Import → Build → Deploy"
+
 on:
+  # 글이 푸시될 때마다 자동 실행
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
     paths-ignore:
       - .gitignore
       - README.md
       - LICENSE
-
-  # Allows you to run this workflow manually from the Actions tab
+  # 수동 실행
   workflow_dispatch:
+  # 정기 실행 (예: 1시간마다)
+  schedule:
+    - cron: '0 * * * *'   # 필요 없으면 삭제
 
 permissions:
-  contents: read
+  contents: write   # importer job에서 auto-commit 할 때 필요
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: true
 
 jobs:
-  build:
+  #### 1) Notion → _posts/ 변환 ####
+  importer:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - uses: actions/checkout@v4
+
+      # Node ⬇︎ — 버전은 LTS(20) 권장
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm ci          # package.json, package-lock.json 기반 설치
+      - run: node _scripts/notion-import.js
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DATABASE_ID:  ${{ secrets.DATABASE_ID }}
+
+      # 변경된 마크다운/이미지 커밋
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "[Auto] Notion posts update"
+          branch: ${{ github.ref_name }}   # = main 또는 master
+
+  #### 2) Jekyll 빌드 ####
+  build:
+    needs: importer        # importer 끝난 뒤 실행
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (fresh)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          # submodules: true
-          # If using the 'assets' git submodule from Chirpy Starter, uncomment above
-          # (See: https://github.com/cotes2020/chirpy-starter/tree/main/assets)
+          fetch-depth: 1
 
       - name: Setup Pages
         id: pages
@@ -48,25 +72,25 @@ jobs:
       - name: Build site
         run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
         env:
-          JEKYLL_ENV: "production"
+          JEKYLL_ENV: production
 
-      - name: Test site
+      - name: Test site (optional)
         run: |
           bundle exec htmlproofer _site \
-            \-\-disable-external \
-            \-\-ignore-urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/"
+            --disable-external --check-html --allow_hash_href
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: "_site${{ steps.pages.outputs.base_path }}"
 
+  #### 3) GitHub Pages 배포 ####
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
