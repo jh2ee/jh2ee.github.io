@@ -77,7 +77,7 @@ jobs:
       - name: Test site (optional)
         run: |
           bundle exec htmlproofer _site \
-            --disable-external --check-html --allow_hash_href
+            --disable-external --checks html --allow-hash-href
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
