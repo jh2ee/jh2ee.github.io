@@ -88,9 +88,9 @@ const n2m = new NotionToMarkdown({ notionClient: notion });
     // if (ptitle?.length > 0) {
     //   title = ptitle[0]?.["plain_text"];
     // }
-    let title = r.properties?.["게시물"]?.["title"]?.[0]?.plain_text ?? "";
-    title = title.trim();
-    if (title === "") title = `Untitled-${id.slice(0, 8)}`;
+    const ptitleBlocks = r.properties?.["게시물"]?.["title"] || [];
+    let title = ptitleBlocks.map(t => t.plain_text).join('').trim();
+    if (title === '') title = `Untitled-${id.slice(0, 8)}`;
 
     // tags
     let tags = [];
@@ -145,7 +145,8 @@ title: "${title}"${fmtags}${fmcats}
     md = replaceTitleOutsideRawBlocks(md);
 
     // const ftitle = `${date}-${title.replaceAll(" ", "-")}.md`;
-    const slug = slugify(title, { lower: true, strict: true });
+    let slug = slugify(title, { lower: true, strict: true });
+    if (slug === '') slug = id.slice(0, 8);   // 전부 한글·특수문자일 때 대비
     const ftitle = `${date}-${slug}.md`;
 
     let index = 0;
