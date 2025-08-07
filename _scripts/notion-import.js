@@ -8,6 +8,30 @@ const slugify = require("slugify");
 // or
 // import {NotionToMarkdown} from "notion-to-md";
 
+// 색상 class
+const colorClassMap = {
+  red:    "notion-red",
+  yellow: "notion-yellow",
+  green:  "notion-green",
+  blue:   "notion-blue",
+  purple: "notion-purple",
+  pink:   "notion-pink",
+  gray:   "notion-gray"
+};
+
+n2m.setCustomTransformer("text", async (block) => {
+  return block.rich_text.map(rt => {
+    const txt = rt.plain_text;
+    const color = rt.annotations?.color || "default";
+    if (color === "default") return txt;
+
+    // 배경색(ex: red_background)은 “_background” 잘라내서 재사용
+    const baseColor = color.replace(/_background$/, "");
+    const cls = colorClassMap[baseColor] || "notion-gray";
+    return `<span class="${cls}">${txt}</span>`;
+  }).join("");
+});
+
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });

@@ -9,3 +9,32 @@
 ';
 
 /* append your custom style below */
+/* ===== Notion 색상 매핑 ===== */
+
+/* ── 라이트 모드(기본) ───────────────────────────── */
+.notion-red    { color: #e03131;   background-color: transparent; }
+.notion-yellow { color: #fab005;   background-color: transparent; }
+.notion-green  { color: #2f9e44;   background-color: transparent; }
+.notion-blue   { color: #1c7ed6;   background-color: transparent; }
+.notion-purple { color: #7048e8;   background-color: transparent; }
+.notion-pink   { color: #d6336c;   background-color: transparent; }
+.notion-gray   { color: #495057;   background-color: transparent; }
+
+/* 필요하면 배경 강조용 클래스(예: red background) */
+.notion-red-bg    { background-color: #fff5f5; color: #e03131; }
+.notion-yellow-bg { background-color: #fff9db; color: #fab005; }
+
+/* ── 다크 모드 ──────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .notion-red    { color: #ff8787; }   /* 밝기 ↓  */
+  .notion-yellow { color: #ffd43b; }
+  .notion-green  { color: #63e6be; }
+  .notion-blue   { color: #74c0fc; }
+  .notion-purple { color: #b197fc; }
+  .notion-pink   { color: #ff99c8; }
+  .notion-gray   { color: #ced4da; }
+
+  /* 배경 강조용 클래스의 다크 버전 */
+  .notion-red-bg    { background-color: #4d1b1b; color: #ff8787; }
+  .notion-yellow-bg { background-color: #4d3b07; color: #ffd43b; }
+}
