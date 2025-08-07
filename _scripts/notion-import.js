@@ -4,6 +4,7 @@ const moment = require("moment");
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
+const slugify = require("slugify"); 
 // or
 // import {NotionToMarkdown} from "notion-to-md";
 
@@ -82,11 +83,15 @@ const n2m = new NotionToMarkdown({ notionClient: notion });
       date = moment(pdate).format("YYYY-MM-DD");
     }
     // title
-    let title = id;
-    let ptitle = r.properties?.["게시물"]?.["title"];
-    if (ptitle?.length > 0) {
-      title = ptitle[0]?.["plain_text"];
-    }
+    // let title = id;
+    // let ptitle = r.properties?.["게시물"]?.["title"];
+    // if (ptitle?.length > 0) {
+    //   title = ptitle[0]?.["plain_text"];
+    // }
+    let title = r.properties?.["게시물"]?.["title"]?.[0]?.plain_text ?? "";
+    title = title.trim();
+    if (title === "") title = `Untitled-${id.slice(0, 8)}`;
+
     // tags
     let tags = [];
     let ptags = r.properties?.["태그"]?.["multi_select"];
@@ -107,22 +112,24 @@ const n2m = new NotionToMarkdown({ notionClient: notion });
     }
 
     // frontmatter
-    let fmtags = "";
-    let fmcats = "";
-    if (tags.length > 0) {
-      fmtags += "\ntags: [";
-      for (const t of tags) {
-        fmtags += t + ", ";
-      }
-      fmtags += "]";
-    }
-    if (cats.length > 0) {
-      fmcats += "\ncategories: [";
-      for (const t of cats) {
-        fmcats += t + ", ";
-      }
-      fmcats += "]";
-    }
+    // let fmtags = "";
+    // let fmcats = "";
+    // if (tags.length > 0) {
+    //   fmtags += "\ntags: [";
+    //   for (const t of tags) {
+    //     fmtags += t + ", ";
+    //   }
+    //   fmtags += "]";
+    // }
+    // if (cats.length > 0) {
+    //   fmcats += "\ncategories: [";
+    //   for (const t of cats) {
+    //     fmcats += t + ", ";
+    //   }
+    //   fmcats += "]";
+    // }
+    const fmtags = tags.length ? `\ntags: [${tags.join(", ")}]` : "";
+    const fmcats = cats.length ? `\ncategories: [${cats.join(", ")}]` : "";
     const fm = `---
 layout: post
 date: ${date}
@@ -137,7 +144,9 @@ title: "${title}"${fmtags}${fmcats}
     md = escapeCodeBlock(md);
     md = replaceTitleOutsideRawBlocks(md);
 
-    const ftitle = `${date}-${title.replaceAll(" ", "-")}.md`;
+    // const ftitle = `${date}-${title.replaceAll(" ", "-")}.md`;
+    const slug = slugify(title, { lower: true, strict: true });
+    const ftitle = `${date}-${slug}.md`;
 
     let index = 0;
     let edited_md = md.replace(
