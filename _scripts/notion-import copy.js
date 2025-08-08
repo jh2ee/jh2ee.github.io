@@ -46,7 +46,6 @@ const n2m = new NotionToMarkdown({
   removeUnverifiedLinks: false
 });
 
-/* ========= Notion 색상 → CSS 클래스 매핑 ========= */
 const colorClassMap = {
   red:    "notion-red",
   yellow: "notion-yellow",
@@ -57,63 +56,17 @@ const colorClassMap = {
   gray:   "notion-gray"
 };
 
-/* ========= 인라인 rich_text를 HTML/MD로 변환 ========= */
-function inlineRich(rt) {
-  // 기본 텍스트 + 마크다운 특수문자 이스케이프
-  let txt = (rt.plain_text || "").replace(/([*_`])/g, "\\$1");
+n2m.setCustomTransformer("text", async (block) => {
+  return (block.rich_text || []).map(rt => {
+    const txt   = rt.plain_text;
+    const color = rt.annotations?.color || "default";
+    if (color === "default") return txt;
 
-  // 강조(볼드/이탤릭/코드)
-  if (rt.annotations?.code)   txt = "`" + txt + "`";
-  if (rt.annotations?.bold)   txt = `**${txt}**`;
-  if (rt.annotations?.italic) txt = `_${txt}_`;
-  if (rt.annotations?.strikethrough) txt = `~~${txt}~~`;
-
-  // 링크
-  if (rt.href) txt = `[${txt}](${rt.href})`;
-
-  // 색상 (텍스트/배경 공통 처리: *_background → 기본색으로 다운그레이드)
-  const color = rt.annotations?.color || "default";
-  if (color === "default") return txt;
-  const base = color.replace(/_background$/, "");
-  const cls  = colorClassMap[base] || "notion-gray";
-  return `<span class="${cls}">${txt}</span>`;
-}
-
-/* ========= 블록 단위 트랜스포머 (색상 + callout 중복 방지) ========= */
-const richTextBlocks = [
-  "paragraph",
-  "heading_1", "heading_2", "heading_3",
-  "bulleted_list_item", "numbered_list_item",
-  "quote", "callout"
-];
-
-for (const type of richTextBlocks) {
-  n2m.setCustomTransformer(type, async (block) => {
-    const prop = block[type] || {};
-    const parts = (prop.rich_text || []).map(inlineRich);
-    const txt = parts.join("");
-
-    if (type.startsWith("heading_")) {
-      const level = Number(type.split("_")[1]) || 1;
-      return `${"#".repeat(level)} ${txt}`;
-    }
-    if (type === "callout") {
-      const icon = prop.icon?.emoji || "💡";
-      // 기본 변환에서 생기는 코드블록 중복을 막기 위해 깔끔하게 blockquote로 출력
-      return `> ${icon} ${txt}`;
-    }
-    if (type === "bulleted_list_item") return `- ${txt}`;
-    if (type === "numbered_list_item") return `1. ${txt}`;
-    if (type === "quote") return `> ${txt}`;
-
-    // paragraph 기본
-    return txt;
-  });
-}
-
-/* 참고: 예전에 시도했던 text 트랜스포머는 notion-to-md에 "text" 타입 훅이 없어 호출되지 않습니다.
-n2m.setCustomTransformer("text", async (block) => { ... });
-*/
+    const base  = color.replace(/_background$/, "");
+    const cls   = colorClassMap[base] || "notion-gray";
+    return `<span class="${cls}">${txt}</span>`;
+  }).join("");
+});
 
 (async () => {
   // ensure directory exists
@@ -121,17 +74,17 @@ n2m.setCustomTransformer("text", async (block) => { ... });
   fs.mkdirSync(root, { recursive: true });
 
   const databaseId = process.env.DATABASE_ID;
-
-  // has_more 대응: 재할당 가능하도록 let 사용
-  let response = await notion.databases.query({
+  const response = await notion.databases.query({
     database_id: databaseId,
     filter: {
       property: "발행여부",
-      checkbox: { equals: false },
+      checkbox: {
+        equals: false,
+      },
     },
   });
 
-  const pages = [...response.results];
+  const pages = response.results;
   while (response.has_more) {
     const nextCursor = response.next_cursor;
     response = await notion.databases.query({
@@ -139,7 +92,9 @@ n2m.setCustomTransformer("text", async (block) => { ... });
       start_cursor: nextCursor,
       filter: {
         property: "발행여부",
-        checkbox: { equals: true },
+        checkbox: {
+          equals: true,
+        },
       },
     });
     pages.push(...response.results);
@@ -147,12 +102,12 @@ n2m.setCustomTransformer("text", async (block) => { ... });
 
   for (const r of pages) {
     const id = r.id;
-
     // date
     let date = moment(r.created_time).format("YYYY-MM-DD");
-    const pdate = r.properties?.["날짜"]?.["date"]?.["start"];
-    if (pdate) date = moment(pdate).format("YYYY-MM-DD");
-
+    let pdate = r.properties?.["날짜"]?.["date"]?.["start"];
+    if (pdate) {
+      date = moment(pdate).format("YYYY-MM-DD");
+    }
     // title
     // let title = id;
     // let ptitle = r.properties?.["게시물"]?.["title"];
@@ -165,18 +120,21 @@ n2m.setCustomTransformer("text", async (block) => { ... });
 
     // tags
     let tags = [];
-    const ptags = r.properties?.["태그"]?.["multi_select"] || [];
+    let ptags = r.properties?.["태그"]?.["multi_select"];
     for (const t of ptags) {
       const n = t?.["name"];
-      if (n) tags.push(n);
+      if (n) {
+        tags.push(n);
+      }
     }
-
     // categories
     let cats = [];
-    const pcats = r.properties?.["카테고리"]?.["multi_select"] || [];
+    let pcats = r.properties?.["카테고리"]?.["multi_select"];
     for (const t of pcats) {
       const n = t?.["name"];
-      if (n) cats.push(n);
+      if (n) {
+        cats.push(n);
+      }
     }
 
     // frontmatter
@@ -198,35 +156,33 @@ n2m.setCustomTransformer("text", async (block) => { ... });
     // }
     const fmtags = tags.length ? `\ntags: [${tags.join(", ")}]` : "";
     const fmcats = cats.length ? `\ncategories: [${cats.join(", ")}]` : "";
-
     const fm = `---
 layout: post
 date: ${date}
 title: "${title}"${fmtags}${fmcats}
 ---
 `;
-
-    // Markdown 변환
     const mdblocks = await n2m.pageToMarkdown(id);
     let md = n2m.toMarkdownString(mdblocks)["parent"];
-    if (md === "") continue;
-
+    if (md === "") {
+      continue;
+    }
     md = escapeCodeBlock(md);
     md = replaceTitleOutsideRawBlocks(md);
 
-    // 안전한 파일명 (언더스코어 사용)
-    let slug = slugify(title, { lower: true, strict: true, replacement: "_" });
-    if (slug === "") slug = id.slice(0, 8);   // 전부 한글·특수문자일 때 대비
-    slug = slug.replace(/_+$/, "");           // 끝쪽 '_' 정리
+    // const ftitle = `${date}-${title.replaceAll(" ", "-")}.md`;
+    let slug = slugify(title, { lower: true, strict: true });
+    if (slug === '') slug = id.slice(0, 8);   // 전부 한글·특수문자일 때 대비
     const ftitle = `${date}-${slug}.md`;
 
-    // 이미지 다운로드 및 경로 치환
     let index = 0;
     let edited_md = md.replace(
-      /!$begin:math:display$(.*?)$end:math:display$$begin:math:text$(.*?)$end:math:text$/g,
-      function (match, p1, p2) {
+      /!\[(.*?)\]\((.*?)\)/g,
+      function (match, p1, p2, p3) {
         const dirname = path.join("assets/img", ftitle);
-        if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, { recursive: true });
+        if (!fs.existsSync(dirname)) {
+          fs.mkdirSync(dirname, { recursive: true });
+        }
         const filename = path.join(dirname, `${index}.png`);
 
         axios({
@@ -250,9 +206,11 @@ title: "${title}"${fmtags}${fmcats}
       }
     );
 
-    // writing to file
+    //writing to file
     fs.writeFile(path.join(root, ftitle), fm + edited_md, (err) => {
-      if (err) console.log(err);
+      if (err) {
+        console.log(err);
+      }
     });
   }
 })();
