@@ -185,7 +185,7 @@ GitHub Actions `deploy` job이 `build` 이후 실행된다.
 
 ### 2. 기존 published 글은 한 번 재sync되어야 최신 규칙이 완전히 반영됨
 
-- 로컬 이미지 치환, `notion_page_id` front matter, manifest 등록은 다음 sync부터 반영된다.
+- 로컬 이미지 치환과 manifest 등록은 다음 sync부터 반영된다.
 - 즉, 현재 이미 게시 중인 Notion 글들은 schedule 또는 수동 실행을 한 번 거쳐야 최신 형태로 정리된다.
 
 ### 3. 로케일 fallback 가능성

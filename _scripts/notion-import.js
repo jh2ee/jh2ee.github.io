@@ -320,7 +320,6 @@ n2m.setCustomTransformer("text", async (block) => { ... });
 
     const fm = `---
 layout: post
-notion_page_id: "${id}"
 date: ${date}
 title: "${safeTitle}"${fmtags}${fmcats}
 ---
