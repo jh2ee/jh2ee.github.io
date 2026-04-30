@@ -42,7 +42,7 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           DATABASE_ID:  ${{ secrets.DATABASE_ID }}
 
-      # 변경된 마크다운/이미지 커밋
+      # 변경된 마크다운/이미지/manifest 커밋
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "[Auto] Notion posts update"
@@ -51,6 +51,7 @@ jobs:
   #### 2) Jekyll 빌드 ####
   build:
     needs: importer        # importer 끝난 뒤 실행
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:

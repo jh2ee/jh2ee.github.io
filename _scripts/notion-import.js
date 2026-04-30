@@ -12,6 +12,10 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
+const fsp = fs.promises;
+const POSTS_ROOT = "_posts";
+const MANIFEST_PATH = ".notion-sync-manifest.json";
+
 function escapeCodeBlock(body) {
   const regex = /```([\s\S]*?)```/g;
   return body.replace(regex, function (match, htmlBlock) {
@@ -37,6 +41,129 @@ function replaceTitleOutsideRawBlocks(body) {
   });
 
   return body;
+}
+
+async function downloadImage(url, outputPath) {
+  const response = await axios({
+    method: "get",
+    url,
+    responseType: "arraybuffer"
+  });
+
+  await fsp.writeFile(outputPath, response.data);
+}
+
+function getImageExtension(url) {
+  try {
+    const { pathname } = new URL(url);
+    const extension = path.extname(pathname);
+    return extension || ".png";
+  } catch {
+    return ".png";
+  }
+}
+
+async function localizeImagesOutsideRawBlocks(body, postName) {
+  const rawBlocks = [];
+  const placeholder = "%%RAW_BLOCK%%";
+  const bodyWithoutRawBlocks = body.replace(/{% raw %}[\s\S]*?{% endraw %}/g, (match) => {
+    rawBlocks.push(match);
+    return placeholder;
+  });
+
+  const imageRegex = /!\[(.*?)\]\((https?:\/\/[^)\s]+)\)/g;
+  const imageDir = path.join("assets", "img", postName);
+  let index = 0;
+  let cursor = 0;
+  let result = "";
+
+  for (const match of bodyWithoutRawBlocks.matchAll(imageRegex)) {
+    const [fullMatch, altText, imageUrl] = match;
+    const start = match.index;
+
+    result += bodyWithoutRawBlocks.slice(cursor, start);
+
+    const extension = getImageExtension(imageUrl);
+    const imagePath = path.join(imageDir, `${index}${extension}`);
+    const imageUrlPath = `/${imagePath.replace(/\\/g, "/")}`;
+
+    try {
+      await fsp.mkdir(imageDir, { recursive: true });
+      await downloadImage(imageUrl, imagePath);
+      result += `![${altText}](${imageUrlPath})`;
+      index += 1;
+    } catch (error) {
+      console.warn(`Failed to download image: ${imageUrl}`);
+      result += fullMatch;
+    }
+
+    cursor = start + fullMatch.length;
+  }
+
+  result += bodyWithoutRawBlocks.slice(cursor);
+
+  rawBlocks.forEach((block) => {
+    result = result.replace(placeholder, block);
+  });
+
+  return result;
+}
+
+async function readManifest() {
+  try {
+    const raw = await fsp.readFile(MANIFEST_PATH, "utf8");
+    const parsed = JSON.parse(raw);
+    return {
+      version: 1,
+      pages: parsed.pages || {}
+    };
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return { version: 1, pages: {} };
+    }
+
+    throw error;
+  }
+}
+
+async function writeManifest(manifest) {
+  const sortedPages = Object.fromEntries(
+    Object.entries(manifest.pages).sort(([leftId], [rightId]) => leftId.localeCompare(rightId))
+  );
+
+  await fsp.writeFile(
+    MANIFEST_PATH,
+    `${JSON.stringify({ version: 1, pages: sortedPages }, null, 2)}\n`
+  );
+}
+
+async function removePath(targetPath) {
+  await fsp.rm(targetPath, { recursive: true, force: true });
+}
+
+async function fetchPublishedPages(databaseId) {
+  let response = await notion.databases.query({
+    database_id: databaseId,
+    filter: {
+      property: "발행여부",
+      checkbox: { equals: true },
+    },
+  });
+
+  const pages = [...response.results];
+  while (response.has_more) {
+    response = await notion.databases.query({
+      database_id: databaseId,
+      start_cursor: response.next_cursor,
+      filter: {
+        property: "발행여부",
+        checkbox: { equals: true },
+      },
+    });
+    pages.push(...response.results);
+  }
+
+  return pages.sort((left, right) => left.id.localeCompare(right.id));
 }
 
 // passing notion client to the option
@@ -116,37 +243,28 @@ n2m.setCustomTransformer("text", async (block) => { ... });
 */
 
 (async () => {
-  // ensure directory exists
-  const root = "_posts";
-  fs.mkdirSync(root, { recursive: true });
+  fs.mkdirSync(POSTS_ROOT, { recursive: true });
 
+  const manifest = await readManifest();
+  const previousPages = manifest.pages;
   const databaseId = process.env.DATABASE_ID;
-
-  // has_more 대응: 재할당 가능하도록 let 사용
-  let response = await notion.databases.query({
-    database_id: databaseId,
-    filter: {
-      property: "발행여부",
-      checkbox: { equals: false },
-    },
-  });
-
-  const pages = [...response.results];
-  while (response.has_more) {
-    const nextCursor = response.next_cursor;
-    response = await notion.databases.query({
-      database_id: databaseId,
-      start_cursor: nextCursor,
-      filter: {
-        property: "발행여부",
-        checkbox: { equals: true },
-      },
-    });
-    pages.push(...response.results);
-  }
+  const pages = await fetchPublishedPages(databaseId);
+  const currentPageIds = new Set(pages.map((page) => page.id));
+  const nextPages = {};
+  const claimedPostPaths = new Map();
 
   for (const r of pages) {
     const id = r.id;
+    const previousEntry = previousPages[id];
+
+    if (
+      previousEntry?.lastEditedTime === r.last_edited_time &&
+      previousEntry.postPath &&
+      fs.existsSync(previousEntry.postPath)
+    ) {
+      nextPages[id] = previousEntry;
+      continue;
+    }
 
     // date
     let date = moment(r.created_time).format("YYYY-MM-DD");
@@ -198,18 +316,19 @@ n2m.setCustomTransformer("text", async (block) => { ... });
     // }
     const fmtags = tags.length ? `\ntags: [${tags.join(", ")}]` : "";
     const fmcats = cats.length ? `\ncategories: [${cats.join(", ")}]` : "";
+    const safeTitle = title.replace(/"/g, '\\"');
 
     const fm = `---
 layout: post
+notion_page_id: "${id}"
 date: ${date}
-title: "${title}"${fmtags}${fmcats}
+title: "${safeTitle}"${fmtags}${fmcats}
 ---
 `;
 
     // Markdown 변환
     const mdblocks = await n2m.pageToMarkdown(id);
     let md = n2m.toMarkdownString(mdblocks)["parent"];
-    if (md === "") continue;
 
     md = escapeCodeBlock(md);
     md = replaceTitleOutsideRawBlocks(md);
@@ -218,41 +337,50 @@ title: "${title}"${fmtags}${fmcats}
     let slug = slugify(title, { lower: true, strict: true, replacement: "_" });
     if (slug === "") slug = id.slice(0, 8);   // 전부 한글·특수문자일 때 대비
     slug = slug.replace(/_+$/, "");           // 끝쪽 '_' 정리
-    const ftitle = `${date}-${slug}.md`;
+    const postName = `${date}-${slug}`;
+    const postPath = path.join(POSTS_ROOT, `${postName}.md`);
+    const assetDir = path.join("assets", "img", postName);
 
-    // 이미지 다운로드 및 경로 치환
-    let index = 0;
-    let edited_md = md.replace(
-      /!$begin:math:display$(.*?)$end:math:display$$begin:math:text$(.*?)$end:math:text$/g,
-      function (match, p1, p2) {
-        const dirname = path.join("assets/img", ftitle);
-        if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, { recursive: true });
-        const filename = path.join(dirname, `${index}.png`);
+    if (claimedPostPaths.has(postPath)) {
+      throw new Error(`Duplicate post path generated for Notion pages ${claimedPostPaths.get(postPath)} and ${id}: ${postPath}`);
+    }
 
-        axios({
-          method: "get",
-          url: p2,
-          responseType: "stream",
-        })
-          .then(function (response) {
-            let file = fs.createWriteStream(`${filename}`);
-            response.data.pipe(file);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+    claimedPostPaths.set(postPath, id);
 
-        let res;
-        if (p1 === "") res = "";
-        else res = `_${p1}_`;
+    if (previousEntry?.postPath && previousEntry.postPath !== postPath) {
+      await removePath(previousEntry.postPath);
+    }
 
-        return `![${index++}](/${filename})${res}`;
-      }
-    );
+    if (previousEntry?.assetDir && previousEntry.assetDir !== assetDir) {
+      await removePath(previousEntry.assetDir);
+    }
 
-    // writing to file
-    fs.writeFile(path.join(root, ftitle), fm + edited_md, (err) => {
-      if (err) console.log(err);
-    });
+    await removePath(assetDir);
+
+    const editedMd = await localizeImagesOutsideRawBlocks(md, postName);
+
+    await fsp.writeFile(postPath, fm + editedMd);
+
+    nextPages[id] = {
+      postPath,
+      assetDir,
+      lastEditedTime: r.last_edited_time
+    };
   }
+
+  for (const [pageId, previousEntry] of Object.entries(previousPages)) {
+    if (currentPageIds.has(pageId)) {
+      continue;
+    }
+
+    if (previousEntry.postPath) {
+      await removePath(previousEntry.postPath);
+    }
+
+    if (previousEntry.assetDir) {
+      await removePath(previousEntry.assetDir);
+    }
+  }
+
+  await writeManifest({ version: 1, pages: nextPages });
 })();
