@@ -34,22 +34,19 @@ _→ sequence model이 양방향 context를 처리해야 함을 의미_
 1. RC-equivariant DNA foundation model family 기여
 1. 10x 크기의 model보다 높은 성능
 
-> 💡 
-
-
-	## **Background**
-
-
-	### DNA
-
-	- DNA는 A, T, G, C 네 가지의 nucleotide bases로 구성
-	- nucleotide base 사이의 결합은 twisted ladder의 rungs(가로대) 생성
-	- A는 T와 결합, C는 G와 결합
-
-	### Reverse Complement(RC) Strands
-
-	- 이중 나선 구조의 DNA에서 각 strand는 의미상 동등한 정보를 포함
-	- RC는 forward strand에 의해 A→T, C→G 로 변환
+> ## **Background**
+>
+> ### DNA
+>
+> - DNA는 A, T, G, C 네 가지의 nucleotide bases로 구성
+> - nucleotide base 사이의 결합은 twisted ladder의 rungs(가로대) 생성
+> - A는 T와 결합, C는 G와 결합
+>
+> ### Reverse Complement(RC) Strands
+>
+> - 이중 나선 구조의 DNA에서 각 strand는 의미상 동등한 정보를 포함
+> - RC는 forward strand에 의해 A→T, C→G 로 변환
+{: .prompt-tip }
 
 
 ## Methods
@@ -200,4 +197,3 @@ $$
 
 
 <span class="notion-red">그러나 model의 성능 향상과 parameter 효율성이라는 측면에 있어서는 좋은 결과를 보였기에 mamba가 long range understanding 작업에서 유용함을 증명하는 또 하나의 사례가 될 것 같다.</span>
-

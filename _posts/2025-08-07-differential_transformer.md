@@ -33,13 +33,10 @@ Figure 1의 왼쪽 그림을 보면 Transformer model이 정답에 낮은 attent
 		<span class="notion-red">향상된 성능은 Figure 1의 두 세번째 그림 통해 확인 가능하다.</span>
 
 
-> 💡 
-
-
-	### Attention noise?
-
-
-	: 정답이 아닌 token들에 나타나는 attention score
+> ### Attention noise?
+>
+> : 정답이 아닌 token들에 나타나는 attention score
+{: .prompt-tip }
 
 
 
@@ -170,4 +167,3 @@ figure에는 표현하지 않았으나 MultiHead 이후, Normalize 이후 residu
 
 
 vanilla Transformer를 대체할만한 architecture인지는 조금 더 지켜봐야 할 것 같지만 실험 결과들만 보았을 때 parameter 측면에서, noise 제거 측면에서 꽤 괜찮은 성능을 보이는 것 같다. 구현 또한 어려운 편이 아니라 관련 연구들이 곧 쏟아져 나오지 않을까,,,
-

@@ -18,10 +18,11 @@ categories: [Paper Review]
 	- 4개의 VSSS block을 channel modulation operator로 감싸 cross-channel communication 향상
 	- <span class="notion-red">_**distillation-based training**_</span> objective를 통해 large scale에서의 안정성, 성능 향상
 
-> ❓ **Distillation-based training?**
-
-	- Knowledge Distillation(KD) 기반 학습
-	- Student-Teacher 구조의 학습 방법
+> **Distillation-based training?**
+>
+> - Knowledge Distillation(KD) 기반 학습
+> - Student-Teacher 구조의 학습 방법
+{: .prompt-info }
 
 
 ## Introduction
@@ -36,32 +37,28 @@ categories: [Paper Review]
 
 - Mamba의 Vision 버전인 VSS(Visual State Space) block은 channel에 비례해 파라미터 및 계산 효율 등의 문제 존재
 
-> 💡 
-
-
-	### Contribution
-
-	1. `Modulated Mamba layer` : 계산 효율성, interaction 향상 위한 mamba layer 수정
-	1. `Channel Affinity Modulation` (CAM) : channel 간 상호 작용 향상 operator
-	1. `Distillation-based training objective` : 학습 불안정성 완화 위한 학습 방법
-	1. `GroupMamba` : Modulated GM layer 기반 classification model 제시
+> ### Contribution
+>
+> 1. `Modulated Mamba layer` : 계산 효율성, interaction 향상 위한 mamba layer 수정
+> 1. `Channel Affinity Modulation` (CAM) : channel 간 상호 작용 향상 operator
+> 1. `Distillation-based training objective` : 학습 불안정성 완화 위한 학습 방법
+> 1. `GroupMamba` : Modulated GM layer 기반 classification model 제시
+{: .prompt-tip }
 
 
 ## Method
 
 
-> 💡 
-
-
-	### Motivation
-
-	- `Lack of Stability for Larger Models` : SiMBA-L (MLP)에서 확인된 문제
-		- MLP channel mixer 사용 시 parameter 수 확장 시 불안정
-		- **distillation objective**와** Modulated Group Mamba architecture**를 도입해 완화
-	- `Efficient Improved Interaction` 
-		- **Modulated Group Mamba layer** 도입 → 기존 Mamba layer보다 parameter 절감
-		- **Multi-direction scan →** input token 단에서의 local, global information modeling
-		- **Channel Affinity Modulation** 도입 → Group 연산으로 인한 제한된 channel interaction 향상
+> ### Motivation
+>
+> - `Lack of Stability for Larger Models` : SiMBA-L (MLP)에서 확인된 문제
+> 	- MLP channel mixer 사용 시 parameter 수 확장 시 불안정
+> 	- **distillation objective**와** Modulated Group Mamba architecture**를 도입해 완화
+> - `Efficient Improved Interaction`
+> 	- **Modulated Group Mamba layer** 도입 → 기존 Mamba layer보다 parameter 절감
+> 	- **Multi-direction scan →** input token 단에서의 local, global information modeling
+> 	- **Channel Affinity Modulation** 도입 → Group 연산으로 인한 제한된 channel interaction 향상
+{: .prompt-tip }
 
 
 ### Preliminaries
@@ -195,10 +192,11 @@ $$
 - Mamba의 scaling 문제 해결 위한 방안
 - Cross Entropy와 Knowledge Distilation objective 활용
 
-> 💡  **Knowledge Distillation**
-
-	- Classification loss와 distillation loss를 최소화 하도록 Teacher model 기반의 Student model 학습
-	- Distillation loss는 teacher-student model 간의 CE objective로 계산
+> **Knowledge Distillation**
+>
+> - Classification loss와 distillation loss를 최소화 하도록 Teacher model 기반의 Student model 학습
+> - Distillation loss는 teacher-student model 간의 CE objective로 계산
+{: .prompt-tip }
 
 $$
 \mathcal{L}_{total} = \alpha\mathcal{L}_{CE}(Z_s,y)+(1-\alpha)\mathcal{L}_{CE}(Z_S,y_t)

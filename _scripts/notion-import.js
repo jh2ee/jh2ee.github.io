@@ -15,12 +15,55 @@ const notion = new Client({
 const fsp = fs.promises;
 const POSTS_ROOT = "_posts";
 const MANIFEST_PATH = ".notion-sync-manifest.json";
+const CALLOUT_MARKER = "%%%NOTION_CALLOUT";
+
+function isBlankLine(line) {
+  return line.trim() === "";
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function escapeCodeBlock(body) {
-  const regex = /```([\s\S]*?)```/g;
-  return body.replace(regex, function (match, htmlBlock) {
-    return "\n{% raw %}\n```" + htmlBlock.trim() + "\n```\n{% endraw %}\n";
-  });
+  const lines = body.split("\n");
+  const escaped = [];
+  let inCodeBlock = false;
+  let codeBlockPrefix = "";
+  let closingFenceRegex = null;
+
+  for (const line of lines) {
+    if (!inCodeBlock) {
+      const openingFenceMatch = line.match(/^([>\t ]*)```/);
+
+      if (!openingFenceMatch) {
+        escaped.push(line);
+        continue;
+      }
+
+      codeBlockPrefix = openingFenceMatch[1];
+      closingFenceRegex = new RegExp("^" + escapeRegExp(codeBlockPrefix) + "```\\s*$");
+      escaped.push(`${codeBlockPrefix}{% raw %}`);
+      escaped.push(line);
+      inCodeBlock = true;
+      continue;
+    }
+
+    escaped.push(line);
+
+    if (closingFenceRegex?.test(line)) {
+      escaped.push(`${codeBlockPrefix}{% endraw %}`);
+      inCodeBlock = false;
+      codeBlockPrefix = "";
+      closingFenceRegex = null;
+    }
+  }
+
+  if (inCodeBlock) {
+    escaped.push(`${codeBlockPrefix}{% endraw %}`);
+  }
+
+  return escaped.join("\n");
 }
 
 function replaceTitleOutsideRawBlocks(body) {
@@ -41,6 +84,111 @@ function replaceTitleOutsideRawBlocks(body) {
   });
 
   return body;
+}
+
+function getCalloutPromptType(prop) {
+  const color = (prop.color || "default").replace(/_background$/, "");
+
+  if (["red", "pink"].includes(color)) {
+    return "danger";
+  }
+
+  if (["yellow", "orange", "brown"].includes(color)) {
+    return "warning";
+  }
+
+  if (color === "green") {
+    return "tip";
+  }
+
+  const icon = prop.icon?.emoji || "";
+
+  if (["💡", "✅", "✔️", "🌱"].includes(icon)) {
+    return "tip";
+  }
+
+  if (["⚠️", "⚠", "🚧"].includes(icon)) {
+    return "warning";
+  }
+
+  if (["🚨", "⛔", "❌"].includes(icon)) {
+    return "danger";
+  }
+
+  return "info";
+}
+
+function normalizeCalloutBlocks(body) {
+  const lines = body.split("\n");
+  const normalized = [];
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const markerMatch = lines[i].match(/^(\t*)%%%NOTION_CALLOUT:([a-z]+)%%% ?(.*)$/);
+
+    if (!markerMatch) {
+      normalized.push(lines[i]);
+      continue;
+    }
+
+    const [, prefix, promptType, firstLineRaw] = markerMatch;
+    const calloutLines = [];
+    const firstLine = firstLineRaw.trimEnd();
+
+    if (firstLine !== "") {
+      calloutLines.push(firstLine);
+    }
+
+    let j = i + 1;
+    const nestedPrefix = `${prefix}\t`;
+
+    while (j < lines.length) {
+      const line = lines[j];
+
+      if (line.startsWith(nestedPrefix)) {
+        const nestedLine = line.slice(nestedPrefix.length);
+        calloutLines.push(isBlankLine(nestedLine) ? "" : nestedLine);
+        j += 1;
+        continue;
+      }
+
+      if (isBlankLine(line)) {
+        let k = j + 1;
+
+        while (k < lines.length && isBlankLine(lines[k])) {
+          k += 1;
+        }
+
+        if (k < lines.length && lines[k].startsWith(nestedPrefix)) {
+          calloutLines.push("");
+          j += 1;
+          continue;
+        }
+      }
+
+      break;
+    }
+
+    while (calloutLines.length > 0 && calloutLines[0] === "") {
+      calloutLines.shift();
+    }
+
+    while (calloutLines.length > 0 && calloutLines[calloutLines.length - 1] === "") {
+      calloutLines.pop();
+    }
+
+    if (calloutLines.length === 0) {
+      calloutLines.push("");
+    }
+
+    calloutLines.forEach((line) => {
+      normalized.push(line === "" ? `${prefix}>` : `${prefix}> ${line}`);
+    });
+    normalized.push(`${prefix}{: .prompt-${promptType} }`);
+
+    i = j - 1;
+  }
+
+  return normalized.join("\n");
 }
 
 async function downloadImage(url, outputPath) {
@@ -225,9 +373,9 @@ for (const type of richTextBlocks) {
       return `${"#".repeat(level)} ${txt}`;
     }
     if (type === "callout") {
-      const icon = prop.icon?.emoji || "💡";
-      // 기본 변환에서 생기는 코드블록 중복을 막기 위해 깔끔하게 blockquote로 출력
-      return `> ${icon} ${txt}`;
+      const promptType = getCalloutPromptType(prop);
+      const content = txt.trim();
+      return `${CALLOUT_MARKER}:${promptType}%%%${content ? ` ${content}` : ""}`;
     }
     if (type === "bulleted_list_item") return `- ${txt}`;
     if (type === "numbered_list_item") return `1. ${txt}`;
@@ -331,6 +479,7 @@ title: "${safeTitle}"${fmtags}${fmcats}
 
     md = escapeCodeBlock(md);
     md = replaceTitleOutsideRawBlocks(md);
+    md = normalizeCalloutBlocks(md);
 
     // 안전한 파일명 (언더스코어 사용)
     let slug = slugify(title, { lower: true, strict: true, replacement: "_" });
