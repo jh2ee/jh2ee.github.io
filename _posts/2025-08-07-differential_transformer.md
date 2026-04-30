@@ -1,5 +1,6 @@
 ---
 layout: post
+notion_page_id: "248ad5ef-e42b-8040-a57e-c339d807dbac"
 date: 2025-08-07
 title: "[논문 리뷰] Differential Transformer"
 tags: [Transformer, ICLR2025]
@@ -19,7 +20,7 @@ categories: [Paper Review]
 	> [Lost in the Middle: How Language Models Use Long Contextshttps://arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172)
 
 
-![](https://prod-files-secure.s3.us-west-2.amazonaws.com/542b861c-36a8-4051-84e5-8804b6728dba/9083ea56-691a-4752-ae26-47f403431ac8/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466473SJW3M%2F20251014%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251014T003746Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIQDX5dxgid4%2B5DGqNyUFBpjtcuI2A93H18womqnr3WkR2gIgUsR7W3bC7VGKjBUBFJXrOZ%2BjN8k5PMBnRhV%2FK0JVKeoq%2FwMIUBAAGgw2Mzc0MjMxODM4MDUiDEpKQVcjWt9wPSNzZyrcA%2FzmbCSfjebovTggNjotg9kwTiutEBYgkQ4y3C1XFG%2Bada1MfOmg7oyIterW%2FgTxC1xCBUm77Tv04w6Ov6TdJrE4Yj2WpUWlpSlJAfTj8VN3v%2Bzrml0jg44p6nUVUOPjDceELvcKes30qTQJcAIGyIkfhI2jTnm6B%2BshmQR9LhMryfZKFoESSQs%2F9XmsyrcW7uJHs9tkHKQhThVhh6bLaeuxX148Hn7ePlPJSWw31gFM%2BVmZuD2HelYoML3Mln%2BlATBOKuiDW60i%2B0%2F4QWeKBMIJjOKCZpZPDaxWDydNioeAv2m2UP%2BOr7hiXHg5L%2FZwJNGeP4LS%2FzbXJRozrhQPo%2FmwIJ6w%2FFF4MCjdcQtWcJcyr4KYKhv53oOgnP3WEToUUQHA4ttR7glL%2F7xyIIKWdzFqvfQ%2BzBKb8iChyrUNkcde%2BV9exz5CE9798UegQtrFpe6OvCM9zvbNHmBYfoIgiKW9hC%2Fj9BrtygTo4Afa1YSl5BDRa2%2FXBNO0XeztvjZLTpyAYc8fpZM5zgeVc%2Bd5poR%2FqF7J%2FZqfeTuXATBapAAx%2BiRFk%2BJO7DL7DuOGpmDY8QTdHkFd7d4Ma3ifIG2vhKvUvdn2iaPsnM9wrFVVGgdoWom8DS6NJxVctWY2MP6StscGOqUB3IsyJM9TU2QnIJa%2BrSZ3VH48X%2BCBzWEpUUDjErrJsz6jzCzz4h7Ornna%2BMBYFFYYq8MOWiFdcfPPdEV9fVRCkIjranbuS%2Fafxt4DZfRuaVX8%2FJQ6LfA22T4j3uUFuLdrKklPK8RkKQrWf%2BMko7ivP%2BDfg6GmtPxwM485r%2B7i1Io9OaL0k%2BiWmz2Q3DT2Q%2BIDua8LnKbMMZ1K7zpojvYkjvBBY1rG&X-Amz-Signature=c71ebdd938cebb01a7bf9854ca0d31193c1f8099f843160824d3d7aa0a6d29d2&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
+![](/assets/img/2025-08-07-differential_transformer/0.png)
 
 
 Figure 1의 왼쪽 그림을 보면 Transformer model이 정답에 낮은 attention score를 할당한 경향성을 확인할 수 있다.
@@ -62,7 +63,7 @@ pre-RMSNorm과 SwiGLU의 경우 LLaMA에서 채택한 방법이라고 소개한�
 #### Differential Attention
 
 
-![](https://prod-files-secure.s3.us-west-2.amazonaws.com/542b861c-36a8-4051-84e5-8804b6728dba/116d70b2-1963-4810-9167-f4c7d8a06e8f/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466473SJW3M%2F20251014%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251014T003746Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIQDX5dxgid4%2B5DGqNyUFBpjtcuI2A93H18womqnr3WkR2gIgUsR7W3bC7VGKjBUBFJXrOZ%2BjN8k5PMBnRhV%2FK0JVKeoq%2FwMIUBAAGgw2Mzc0MjMxODM4MDUiDEpKQVcjWt9wPSNzZyrcA%2FzmbCSfjebovTggNjotg9kwTiutEBYgkQ4y3C1XFG%2Bada1MfOmg7oyIterW%2FgTxC1xCBUm77Tv04w6Ov6TdJrE4Yj2WpUWlpSlJAfTj8VN3v%2Bzrml0jg44p6nUVUOPjDceELvcKes30qTQJcAIGyIkfhI2jTnm6B%2BshmQR9LhMryfZKFoESSQs%2F9XmsyrcW7uJHs9tkHKQhThVhh6bLaeuxX148Hn7ePlPJSWw31gFM%2BVmZuD2HelYoML3Mln%2BlATBOKuiDW60i%2B0%2F4QWeKBMIJjOKCZpZPDaxWDydNioeAv2m2UP%2BOr7hiXHg5L%2FZwJNGeP4LS%2FzbXJRozrhQPo%2FmwIJ6w%2FFF4MCjdcQtWcJcyr4KYKhv53oOgnP3WEToUUQHA4ttR7glL%2F7xyIIKWdzFqvfQ%2BzBKb8iChyrUNkcde%2BV9exz5CE9798UegQtrFpe6OvCM9zvbNHmBYfoIgiKW9hC%2Fj9BrtygTo4Afa1YSl5BDRa2%2FXBNO0XeztvjZLTpyAYc8fpZM5zgeVc%2Bd5poR%2FqF7J%2FZqfeTuXATBapAAx%2BiRFk%2BJO7DL7DuOGpmDY8QTdHkFd7d4Ma3ifIG2vhKvUvdn2iaPsnM9wrFVVGgdoWom8DS6NJxVctWY2MP6StscGOqUB3IsyJM9TU2QnIJa%2BrSZ3VH48X%2BCBzWEpUUDjErrJsz6jzCzz4h7Ornna%2BMBYFFYYq8MOWiFdcfPPdEV9fVRCkIjranbuS%2Fafxt4DZfRuaVX8%2FJQ6LfA22T4j3uUFuLdrKklPK8RkKQrWf%2BMko7ivP%2BDfg6GmtPxwM485r%2B7i1Io9OaL0k%2BiWmz2Q3DT2Q%2BIDua8LnKbMMZ1K7zpojvYkjvBBY1rG&X-Amz-Signature=ab1785a2cfdcde0746153922b751c0d7c1a694aac08060f370d09d818cb58193&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
+![](/assets/img/2025-08-07-differential_transformer/1.png)
 
 
 Differential attention mechanism은 두 개의 softmax attention map 간의 차이를 attention score로 계산한다.

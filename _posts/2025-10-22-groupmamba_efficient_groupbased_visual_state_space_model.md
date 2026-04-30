@@ -1,8 +1,9 @@
 ---
 layout: post
+notion_page_id: "294ad5ef-e42b-8086-97b8-d01f29f53258"
 date: 2025-10-22
 title: "[논문 리뷰] GroupMamba: Efficient Group-Based Visual State Space Model"
-tags: [Mamba]
+tags: [Mamba, CVPR]
 categories: [Paper Review]
 ---
 
@@ -90,7 +91,7 @@ SSM이 딥러닝에서 sequence modeling에 사용하기 위해 **discretization
 ### Architecture
 
 
-![](https://prod-files-secure.s3.us-west-2.amazonaws.com/542b861c-36a8-4051-84e5-8804b6728dba/f9de14fb-9b58-4912-a908-139bc60500bd/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466VH7KK5ST%2F20251024%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251024T060125Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJ3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIAlZI3a5qYxkkLTHa0wIxoAlrryHjooJp0TsvrMkQSheAiEA4nPLo8MUnK0m2cUhnvFlCKJI4APZ7dmcJlJffiahyAsq%2FwMIVhAAGgw2Mzc0MjMxODM4MDUiDDdkZdqZFpH0zNheOyrcA%2FdE2luLldtbaEPF81xUZSk%2BIbt9tPr%2FbXUcFCs%2BUYityMadhek2I4jer7rwPXud7jsFrB3%2B0E1vAQh83Us4UX610zfAZXQ0bvTLWJTCeKUcZw%2F%2FIZFMrHl6m24INC1S%2FFx9vp8CcAfW6OiBo%2BssECBjg9kciwLNQo2w60ZsZuIMjbAj0AtqlO%2FLiX9WwlajsGo5glUOEEDIrvH99vk0U0uJIIe0BAQXKfI0xtntnscq8yjSgg7Yy3jpu9HXWrN1iEr%2FZW2jbUFCqEp%2BaYJbz1t52xIplA6Crsseua6nCV4uWIebNuqbE90AZZ%2BNf4nujOLs84LeESChGzjN%2B%2B6mRsnPW2Hqmyd%2FhFOl2wA1V5iJAh6ihWPgusIxGT2BOQluf2CzcMjgb0D1yD1oEeJ4DWXdZ1mz0YmPg9N5WXnws62HlzbJZh8AZB5SWZWQDFeodk1pvy3yQwYHdgWXZ%2B4dfQDt4SFYmTo0nEC6gK7CfqbN0dtxD6N4vgSCH5FBhncuMzulvRSTdyF%2Fu%2FRQWUnAnfMbjmVV9DahncdSJULeXqNtS9JXlTJ8y98NnGtndWxxZerpDIEtlQDiOY1YUuVYAJ13BNWndVL6RfDEW1eXqa%2FTVYG5L2jQNDDnU0XcMPuL7McGOqUBV6oYoJd1q5ZaecRbTtk3fZIlgpE44hJDZqCsQ6LR40NuJqSrKUy%2Fz0qKOSXH16SGwff%2B80yK92zM6TWBUHU2KDK6LH3XJbKxTcthgytjcI%2FEk541NT1NU6Tl6U3r3rAhgkeAd3JPjII0AvPuXbniyeTbuEirKSQYIIVj%2Fxh1newJv4fXr3VIacC2jxsUSHxd5VyUuFNJ7XGEXD3S7GhT0eGg55iO&X-Amz-Signature=babe3c10eda1db5475244f824bcbe7abb32ea04a5cb29f573d9975b4b2f6c208&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
+![](/assets/img/2025-10-22-groupmamba_efficient_groupbased_visual_state_space_model/0.png)
 
 
 

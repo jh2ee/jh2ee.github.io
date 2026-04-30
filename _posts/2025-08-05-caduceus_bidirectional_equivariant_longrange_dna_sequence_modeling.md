@@ -1,5 +1,6 @@
 ---
 layout: post
+notion_page_id: "246ad5ef-e42b-80d9-8b0a-dcf63fce79d3"
 date: 2025-08-05
 title: "[논문 리뷰] Caduceus: Bi-Directional Equivariant Long-Range DNA Sequence Modeling"
 tags: [Genomics, Mamba]
@@ -58,7 +59,7 @@ _→ sequence model이 양방향 context를 처리해야 함을 의미_
 ### BiMamba
 
 
-![](https://prod-files-secure.s3.us-west-2.amazonaws.com/542b861c-36a8-4051-84e5-8804b6728dba/2c247d59-7815-4980-99f0-8f0d21f445a7/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466TFVTFELK%2F20251014%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251014T003744Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIDxyMQsHqzWQUslhH8%2BfSbAEb2Y%2Bm1BQhMriYVoQTk8FAiEAqZay8dyHd9fzf8O55npYFDtQqggYSt%2FCJXtI03o43rcq%2FwMIUhAAGgw2Mzc0MjMxODM4MDUiDP8unixb%2FrvD6QgjnSrcA9c2StoZCoQo4qgxIZ9eISJiA89kvkJInbTQrDLQxi2Ac7avSTW%2BdEwFRKKUJ3HH1Z8oN31hdOi%2FiqVJyVl%2BAZhIILCEILy4LRfs0rO6TM2cB0Nwy0j7TGLjSbkowZ2OZan%2B%2Fq%2FQhyh8zqEn6vmD%2B6W2IoLdQ4YpT0cm9ecaVhUR6sqKm%2F0vM89%2B7HdPaWBmj%2BczBvgJ%2F6nE%2BSYUqnkCDZmxKSd9eCs4AZEZacw10Jl4s4LWtztMywbYI%2FmWMgcCZ6QrIiGuGdUexke6IsxK0T2G1VvQ%2BUdMz9oWGYX5Tx8ZKhP7Y%2FadMUZ0m%2BtO5p3g%2FBauZcNjdWPQkfX%2BQkMNBwG0oMDiSYmp7RkHKkoqmz9tIIEOfa7WlRjoYte9S1TSbA5wqC3AnY9rvJzCUpqYuIAQ8Yg24iDu9f4N5JWVT4KxC7C5HzEAu%2FLRJw9pDq1lz1LWmE6jttQnj4OoHwAq0Ty8AkJv4WjZrxp2qSYJGB8tD6x91aUVD8x372ZMxdKPUu2nQWshYATgUCZcFuU6lWZ1P%2B5SZZrPzc0loAC6FuhCfY5EIFg9OmWxCCu4Jol6zl0c38Yuj0dZAcQ6IwTThlBkMcYfd2KrzjkcQVbEZAuIx7ec41bFB3XZwQh7MIO2tscGOqUBzoJPeR%2FZZaLAbs4dxfgHmCavybFKYqojm2F5Q4c%2FJUMNyMyX2Hq6Zr5EWk2xVnbsyclAd2fIFLuJzGj32NWe%2F86gD6CFjll9UVTzuQBB3umm5a05tPNzgv62WyB334Pjo65LjJCXoofCuqdmcgIFT4UBDhH6l0J4x48wSp2C0q9wAniKNtPD2sl%2F4ZoCr6kzmgXm8TOxZWrZbsYxuVedBT0Jo4uE&X-Amz-Signature=ac899dd264eac95c75189a121d17fd4614c1ce2f4f12cc62a0a217fd4007075c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
+![](/assets/img/2025-08-05-caduceus_bidirectional_equivariant_longrange_dna_sequence_modeling/0.png)
 
 1. 표준 Mamba model을 bi-directional로 변환하기 위해 Mamba module을 두 번 적용한다
 
@@ -123,7 +124,7 @@ $$
 ### Caduceus
 
 
-![](https://prod-files-secure.s3.us-west-2.amazonaws.com/542b861c-36a8-4051-84e5-8804b6728dba/f94a60d7-8145-473b-aef9-7c68d3ec604a/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466TFVTFELK%2F20251014%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251014T003744Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIDxyMQsHqzWQUslhH8%2BfSbAEb2Y%2Bm1BQhMriYVoQTk8FAiEAqZay8dyHd9fzf8O55npYFDtQqggYSt%2FCJXtI03o43rcq%2FwMIUhAAGgw2Mzc0MjMxODM4MDUiDP8unixb%2FrvD6QgjnSrcA9c2StoZCoQo4qgxIZ9eISJiA89kvkJInbTQrDLQxi2Ac7avSTW%2BdEwFRKKUJ3HH1Z8oN31hdOi%2FiqVJyVl%2BAZhIILCEILy4LRfs0rO6TM2cB0Nwy0j7TGLjSbkowZ2OZan%2B%2Fq%2FQhyh8zqEn6vmD%2B6W2IoLdQ4YpT0cm9ecaVhUR6sqKm%2F0vM89%2B7HdPaWBmj%2BczBvgJ%2F6nE%2BSYUqnkCDZmxKSd9eCs4AZEZacw10Jl4s4LWtztMywbYI%2FmWMgcCZ6QrIiGuGdUexke6IsxK0T2G1VvQ%2BUdMz9oWGYX5Tx8ZKhP7Y%2FadMUZ0m%2BtO5p3g%2FBauZcNjdWPQkfX%2BQkMNBwG0oMDiSYmp7RkHKkoqmz9tIIEOfa7WlRjoYte9S1TSbA5wqC3AnY9rvJzCUpqYuIAQ8Yg24iDu9f4N5JWVT4KxC7C5HzEAu%2FLRJw9pDq1lz1LWmE6jttQnj4OoHwAq0Ty8AkJv4WjZrxp2qSYJGB8tD6x91aUVD8x372ZMxdKPUu2nQWshYATgUCZcFuU6lWZ1P%2B5SZZrPzc0loAC6FuhCfY5EIFg9OmWxCCu4Jol6zl0c38Yuj0dZAcQ6IwTThlBkMcYfd2KrzjkcQVbEZAuIx7ec41bFB3XZwQh7MIO2tscGOqUBzoJPeR%2FZZaLAbs4dxfgHmCavybFKYqojm2F5Q4c%2FJUMNyMyX2Hq6Zr5EWk2xVnbsyclAd2fIFLuJzGj32NWe%2F86gD6CFjll9UVTzuQBB3umm5a05tPNzgv62WyB334Pjo65LjJCXoofCuqdmcgIFT4UBDhH6l0J4x48wSp2C0q9wAniKNtPD2sl%2F4ZoCr6kzmgXm8TOxZWrZbsYxuVedBT0Jo4uE&X-Amz-Signature=f6306b1cf73a30064a7ee89eca90a0f55a86ae0b84e3d9c591456b6f535829b4&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
+![](/assets/img/2025-08-05-caduceus_bidirectional_equivariant_longrange_dna_sequence_modeling/1.png)
 
 
 저자들은 논문에서 두 가지 버전의 Caduceus model을 제시한다. 위 그림에서 검정색 flow가 **Caduceus-PS, **하늘색 flow가 **Caduceus-Ph model** 이다.
@@ -146,7 +147,7 @@ $$
 _figure에서 Token embedding block 두 개를 wrapping 하고 있는 큰 module이 RC equivariant token embedding module이다_
 
 
-![](https://prod-files-secure.s3.us-west-2.amazonaws.com/542b861c-36a8-4051-84e5-8804b6728dba/b175e4da-71eb-4e91-8c23-a06dabe673c9/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466TFVTFELK%2F20251014%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251014T003744Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEKn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJHMEUCIDxyMQsHqzWQUslhH8%2BfSbAEb2Y%2Bm1BQhMriYVoQTk8FAiEAqZay8dyHd9fzf8O55npYFDtQqggYSt%2FCJXtI03o43rcq%2FwMIUhAAGgw2Mzc0MjMxODM4MDUiDP8unixb%2FrvD6QgjnSrcA9c2StoZCoQo4qgxIZ9eISJiA89kvkJInbTQrDLQxi2Ac7avSTW%2BdEwFRKKUJ3HH1Z8oN31hdOi%2FiqVJyVl%2BAZhIILCEILy4LRfs0rO6TM2cB0Nwy0j7TGLjSbkowZ2OZan%2B%2Fq%2FQhyh8zqEn6vmD%2B6W2IoLdQ4YpT0cm9ecaVhUR6sqKm%2F0vM89%2B7HdPaWBmj%2BczBvgJ%2F6nE%2BSYUqnkCDZmxKSd9eCs4AZEZacw10Jl4s4LWtztMywbYI%2FmWMgcCZ6QrIiGuGdUexke6IsxK0T2G1VvQ%2BUdMz9oWGYX5Tx8ZKhP7Y%2FadMUZ0m%2BtO5p3g%2FBauZcNjdWPQkfX%2BQkMNBwG0oMDiSYmp7RkHKkoqmz9tIIEOfa7WlRjoYte9S1TSbA5wqC3AnY9rvJzCUpqYuIAQ8Yg24iDu9f4N5JWVT4KxC7C5HzEAu%2FLRJw9pDq1lz1LWmE6jttQnj4OoHwAq0Ty8AkJv4WjZrxp2qSYJGB8tD6x91aUVD8x372ZMxdKPUu2nQWshYATgUCZcFuU6lWZ1P%2B5SZZrPzc0loAC6FuhCfY5EIFg9OmWxCCu4Jol6zl0c38Yuj0dZAcQ6IwTThlBkMcYfd2KrzjkcQVbEZAuIx7ec41bFB3XZwQh7MIO2tscGOqUBzoJPeR%2FZZaLAbs4dxfgHmCavybFKYqojm2F5Q4c%2FJUMNyMyX2Hq6Zr5EWk2xVnbsyclAd2fIFLuJzGj32NWe%2F86gD6CFjll9UVTzuQBB3umm5a05tPNzgv62WyB334Pjo65LjJCXoofCuqdmcgIFT4UBDhH6l0J4x48wSp2C0q9wAniKNtPD2sl%2F4ZoCr6kzmgXm8TOxZWrZbsYxuVedBT0Jo4uE&X-Amz-Signature=1dd1e90166b446ff0c2ff0355a1c85c16d14309ccafab35cfca962e043c24761&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
+![](/assets/img/2025-08-05-caduceus_bidirectional_equivariant_longrange_dna_sequence_modeling/2.png)
 
 
 <span class="notion-red">수식보다는 그림을 보고 이해하는 것이 직관적인 것 같다…</span>
