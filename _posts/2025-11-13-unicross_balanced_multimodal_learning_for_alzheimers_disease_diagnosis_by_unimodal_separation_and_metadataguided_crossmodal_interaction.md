@@ -111,7 +111,7 @@ $$
 >
 > - 각 separate head가 업데이트 될 때는 각 head 출력으로 계산된 CE loss 만 사용됨
 >
-> 	→ gradient update 과정에서 parameter와 관련 없는 term은 gradient가 0으로 계산되기 때문
+>   → gradient update 과정에서 parameter와 관련 없는 term은 gradient가 0으로 계산되기 때문
 {: .prompt-info }
 
 
@@ -170,7 +170,7 @@ $$
 	>
 	> - contrastive loss 계산 시 batch 내의 모든 sample에 대해 representation feature 계산(Encoder 통과) 후 저장
 	>
-	> 	→ 입력은 sMRI-PET pair로 입력되지만 각각 modality input에 대한 representation 모두 저장 후 contrastive 계산되므로 동일한 modality 끼리의 contrastive loss도 계산 가능.
+	>   → 입력은 sMRI-PET pair로 입력되지만 각각 modality input에 대한 representation 모두 저장 후 contrastive 계산되므로 동일한 modality 끼리의 contrastive loss도 계산 가능.
 	>
 	> - 4가지 pair 계산을 정규화 하기 위함
 	{: .prompt-info }
@@ -193,12 +193,10 @@ $$
 >
 > **Solution**
 >
-> _1.  metadata 기반의 weight를 통해 조절_
->
-> - metadata representation 간의 cosine similarity 측정
-> - metadata를 각 sample의 고유 특성으로 보고 유사할 경우 더 가깝게 align
->
-> _2. __\tau__ 값 이용한 조절_
+> 1. _metadata 기반의 weight를 통해 조절_
+>   - metadata representation 간의 cosine similarity 측정
+>   - metadata를 각 sample의 고유 특성으로 보고 유사할 경우 더 가깝게 align
+> 2. _**\tau** 값 이용한 조절_
 {: .prompt-warning }
 
 

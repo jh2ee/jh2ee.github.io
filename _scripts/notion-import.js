@@ -192,7 +192,7 @@ function normalizeCalloutBlocks(body) {
 }
 
 function normalizeCalloutNestedLine(line) {
-  return line.replace(/^\t+/, "");
+  return line.replace(/^\t+/, (tabs) => "  ".repeat(tabs.length));
 }
 
 function stripOneCalloutIndent(line, prefix) {

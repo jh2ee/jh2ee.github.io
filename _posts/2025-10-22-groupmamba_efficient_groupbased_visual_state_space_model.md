@@ -52,12 +52,12 @@ categories: [Paper Review]
 > ### Motivation
 >
 > - `Lack of Stability for Larger Models` : SiMBA-L (MLP)에서 확인된 문제
-> 	- MLP channel mixer 사용 시 parameter 수 확장 시 불안정
-> 	- **distillation objective**와** Modulated Group Mamba architecture**를 도입해 완화
+>   - MLP channel mixer 사용 시 parameter 수 확장 시 불안정
+>   - **distillation objective**와** Modulated Group Mamba architecture**를 도입해 완화
 > - `Efficient Improved Interaction`
-> 	- **Modulated Group Mamba layer** 도입 → 기존 Mamba layer보다 parameter 절감
-> 	- **Multi-direction scan →** input token 단에서의 local, global information modeling
-> 	- **Channel Affinity Modulation** 도입 → Group 연산으로 인한 제한된 channel interaction 향상
+>   - **Modulated Group Mamba layer** 도입 → 기존 Mamba layer보다 parameter 절감
+>   - **Multi-direction scan →** input token 단에서의 local, global information modeling
+>   - **Channel Affinity Modulation** 도입 → Group 연산으로 인한 제한된 channel interaction 향상
 {: .prompt-tip }
 
 
