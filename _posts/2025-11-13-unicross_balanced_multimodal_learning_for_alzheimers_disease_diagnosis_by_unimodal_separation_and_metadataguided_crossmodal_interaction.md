@@ -194,12 +194,12 @@ $$
 > **Solution**
 >
 > _1.  metadata 기반의 weight를 통해 조절_
+>
+> - metadata representation 간의 cosine similarity 측정
+> - metadata를 각 sample의 고유 특성으로 보고 유사할 경우 더 가깝게 align
+>
+> _2. __\tau__ 값 이용한 조절_
 {: .prompt-warning }
-
-		- metadata representation 간의 cosine similarity 측정
-		- metadata를 각 sample의 고유 특성으로 보고 유사할 경우 더 가깝게 align
-
-	_2. __\tau__ 값 이용한 조절_
 
 
 

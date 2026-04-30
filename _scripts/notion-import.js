@@ -146,7 +146,7 @@ function normalizeCalloutBlocks(body) {
 
       if (line.startsWith(nestedPrefix)) {
         const nestedLine = line.slice(nestedPrefix.length);
-        calloutLines.push(isBlankLine(nestedLine) ? "" : nestedLine);
+        calloutLines.push(isBlankLine(nestedLine) ? "" : normalizeCalloutNestedLine(nestedLine));
         j += 1;
         continue;
       }
@@ -189,6 +189,82 @@ function normalizeCalloutBlocks(body) {
   }
 
   return normalized.join("\n");
+}
+
+function normalizeCalloutNestedLine(line) {
+  return line.replace(/^\t+/, "");
+}
+
+function stripOneCalloutIndent(line, prefix) {
+  if (line.startsWith(`${prefix}\t`)) {
+    return line.slice(prefix.length + 1);
+  }
+
+  if (line.startsWith(`${prefix}    `)) {
+    return line.slice(prefix.length + 4);
+  }
+
+  return null;
+}
+
+function mergePromptContinuationBlocks(body) {
+  const lines = body.split("\n");
+  const merged = [];
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const promptMatch = lines[i].match(/^(\t*)\{: \.prompt-(info|tip|warning|danger) \}$/);
+
+    if (!promptMatch) {
+      merged.push(lines[i]);
+      continue;
+    }
+
+    const [promptLine, prefix] = promptMatch;
+    const continuationLines = [];
+    let hasContinuation = false;
+    let j = i + 1;
+
+    while (j < lines.length) {
+      const line = lines[j];
+      const strippedLine = stripOneCalloutIndent(line, prefix);
+
+      if (strippedLine !== null) {
+        continuationLines.push(isBlankLine(strippedLine) ? "" : normalizeCalloutNestedLine(strippedLine));
+        hasContinuation = true;
+        j += 1;
+        continue;
+      }
+
+      if (isBlankLine(line)) {
+        let k = j + 1;
+
+        while (k < lines.length && isBlankLine(lines[k])) {
+          k += 1;
+        }
+
+        if (k < lines.length && stripOneCalloutIndent(lines[k], prefix) !== null) {
+          continuationLines.push("");
+          j += 1;
+          continue;
+        }
+      }
+
+      break;
+    }
+
+    if (!hasContinuation) {
+      merged.push(promptLine);
+      continue;
+    }
+
+    continuationLines.forEach((line) => {
+      merged.push(line === "" ? `${prefix}>` : `${prefix}> ${line}`);
+    });
+    merged.push(promptLine);
+    i = j - 1;
+  }
+
+  return merged.join("\n");
 }
 
 async function downloadImage(url, outputPath) {
@@ -480,6 +556,7 @@ title: "${safeTitle}"${fmtags}${fmcats}
     md = escapeCodeBlock(md);
     md = replaceTitleOutsideRawBlocks(md);
     md = normalizeCalloutBlocks(md);
+    md = mergePromptContinuationBlocks(md);
 
     // 안전한 파일명 (언더스코어 사용)
     let slug = slugify(title, { lower: true, strict: true, replacement: "_" });
