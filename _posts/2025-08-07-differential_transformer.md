@@ -27,10 +27,10 @@ Figure 1의 왼쪽 그림을 보면 Transformer model이 정답에 낮은 attent
 
 - 현재 transformer model에 나타나는 _**attention noise **_문제 해결 필요성
 
-	_**→ differential denoising**_을 이용한 _**differential attention mechanism**_ 제안
+  _**→ differential denoising**_을 이용한 _**differential attention mechanism**_ 제안
 
 
-		<span class="notion-red">향상된 성능은 Figure 1의 두 세번째 그림 통해 확인 가능하다.</span>
+    <span class="notion-red">향상된 성능은 Figure 1의 두 세번째 그림 통해 확인 가능하다.</span>
 
 
 > ### Attention noise?

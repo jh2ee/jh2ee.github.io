@@ -86,6 +86,26 @@ function replaceTitleOutsideRawBlocks(body) {
   return body;
 }
 
+function normalizeLeadingTabIndentation(body) {
+  const rawBlocks = [];
+  const placeholder = "%%RAW_BLOCK%%";
+  const bodyWithoutRawBlocks = body.replace(/{% raw %}[\s\S]*?{% endraw %}/g, (match) => {
+    rawBlocks.push(match);
+    return placeholder;
+  });
+
+  let normalized = bodyWithoutRawBlocks
+    .split("\n")
+    .map((line) => line.replace(/^\t+/, (tabs) => "  ".repeat(tabs.length)))
+    .join("\n");
+
+  rawBlocks.forEach((block) => {
+    normalized = normalized.replace(placeholder, block);
+  });
+
+  return normalized;
+}
+
 function getCalloutPromptType(prop) {
   const color = (prop.color || "default").replace(/_background$/, "");
 
@@ -118,153 +138,82 @@ function getCalloutPromptType(prop) {
   return "info";
 }
 
-function normalizeCalloutBlocks(body) {
-  const lines = body.split("\n");
-  const normalized = [];
+function parseCalloutMarker(markdown) {
+  const markerMatch = markdown.match(/^%%%NOTION_CALLOUT:([a-z]+)%%% ?([\s\S]*)$/);
 
-  for (let i = 0; i < lines.length; i += 1) {
-    const markerMatch = lines[i].match(/^(\t*)%%%NOTION_CALLOUT:([a-z]+)%%% ?(.*)$/);
+  if (!markerMatch) {
+    return null;
+  }
 
-    if (!markerMatch) {
-      normalized.push(lines[i]);
+  const [, promptType, contentRaw] = markerMatch;
+  return {
+    promptType,
+    content: contentRaw.trim()
+  };
+}
+
+function trimBlankLines(markdown) {
+  const lines = markdown.split("\n");
+
+  while (lines.length > 0 && isBlankLine(lines[0])) {
+    lines.shift();
+  }
+
+  while (lines.length > 0 && isBlankLine(lines[lines.length - 1])) {
+    lines.pop();
+  }
+
+  return lines.join("\n");
+}
+
+function quoteMarkdown(markdown) {
+  const normalized = trimBlankLines(markdown);
+
+  if (normalized === "") {
+    return ">";
+  }
+
+  return normalized
+    .split("\n")
+    .map((line) => (line === "" ? ">" : `> ${line}`))
+    .join("\n");
+}
+
+function finalizeCalloutBlocks(mdBlocks) {
+  for (const block of mdBlocks) {
+    if (block.children?.length > 0) {
+      finalizeCalloutBlocks(block.children);
+    }
+
+    if (block.type !== "callout") {
       continue;
     }
 
-    const [, prefix, promptType, firstLineRaw] = markerMatch;
-    const calloutLines = [];
-    const firstLine = firstLineRaw.trimEnd();
+    const marker = parseCalloutMarker(block.parent);
 
-    if (firstLine !== "") {
-      calloutLines.push(firstLine);
-    }
-
-    let j = i + 1;
-    const nestedPrefix = `${prefix}\t`;
-
-    while (j < lines.length) {
-      const line = lines[j];
-
-      if (line.startsWith(nestedPrefix)) {
-        const nestedLine = line.slice(nestedPrefix.length);
-        calloutLines.push(isBlankLine(nestedLine) ? "" : normalizeCalloutNestedLine(nestedLine));
-        j += 1;
-        continue;
-      }
-
-      if (isBlankLine(line)) {
-        let k = j + 1;
-
-        while (k < lines.length && isBlankLine(lines[k])) {
-          k += 1;
-        }
-
-        if (k < lines.length && lines[k].startsWith(nestedPrefix)) {
-          calloutLines.push("");
-          j += 1;
-          continue;
-        }
-      }
-
-      break;
-    }
-
-    while (calloutLines.length > 0 && calloutLines[0] === "") {
-      calloutLines.shift();
-    }
-
-    while (calloutLines.length > 0 && calloutLines[calloutLines.length - 1] === "") {
-      calloutLines.pop();
-    }
-
-    if (calloutLines.length === 0) {
-      calloutLines.push("");
-    }
-
-    calloutLines.forEach((line) => {
-      normalized.push(line === "" ? `${prefix}>` : `${prefix}> ${line}`);
-    });
-    normalized.push(`${prefix}{: .prompt-${promptType} }`);
-
-    i = j - 1;
-  }
-
-  return normalized.join("\n");
-}
-
-function normalizeCalloutNestedLine(line) {
-  return line.replace(/^\t+/, (tabs) => "  ".repeat(tabs.length));
-}
-
-function stripOneCalloutIndent(line, prefix) {
-  if (line.startsWith(`${prefix}\t`)) {
-    return line.slice(prefix.length + 1);
-  }
-
-  if (line.startsWith(`${prefix}    `)) {
-    return line.slice(prefix.length + 4);
-  }
-
-  return null;
-}
-
-function mergePromptContinuationBlocks(body) {
-  const lines = body.split("\n");
-  const merged = [];
-
-  for (let i = 0; i < lines.length; i += 1) {
-    const promptMatch = lines[i].match(/^(\t*)\{: \.prompt-(info|tip|warning|danger) \}$/);
-
-    if (!promptMatch) {
-      merged.push(lines[i]);
+    if (!marker) {
       continue;
     }
 
-    const [promptLine, prefix] = promptMatch;
-    const continuationLines = [];
-    let hasContinuation = false;
-    let j = i + 1;
+    const childMarkdown = block.children?.length > 0
+      ? trimBlankLines(n2m.toMarkdownString(block.children).parent)
+      : "";
+    const parts = [];
 
-    while (j < lines.length) {
-      const line = lines[j];
-      const strippedLine = stripOneCalloutIndent(line, prefix);
-
-      if (strippedLine !== null) {
-        continuationLines.push(isBlankLine(strippedLine) ? "" : normalizeCalloutNestedLine(strippedLine));
-        hasContinuation = true;
-        j += 1;
-        continue;
-      }
-
-      if (isBlankLine(line)) {
-        let k = j + 1;
-
-        while (k < lines.length && isBlankLine(lines[k])) {
-          k += 1;
-        }
-
-        if (k < lines.length && stripOneCalloutIndent(lines[k], prefix) !== null) {
-          continuationLines.push("");
-          j += 1;
-          continue;
-        }
-      }
-
-      break;
+    if (marker.content !== "") {
+      parts.push(marker.content);
     }
 
-    if (!hasContinuation) {
-      merged.push(promptLine);
-      continue;
+    if (childMarkdown !== "") {
+      parts.push(childMarkdown);
     }
 
-    continuationLines.forEach((line) => {
-      merged.push(line === "" ? `${prefix}>` : `${prefix}> ${line}`);
-    });
-    merged.push(promptLine);
-    i = j - 1;
+    const bodyMarkdown = parts.join("\n\n");
+    block.parent = `${quoteMarkdown(bodyMarkdown)}\n{: .prompt-${marker.promptType} }`;
+    block.children = [];
   }
 
-  return merged.join("\n");
+  return mdBlocks;
 }
 
 async function downloadImage(url, outputPath) {
@@ -551,12 +500,12 @@ title: "${safeTitle}"${fmtags}${fmcats}
 
     // Markdown 변환
     const mdblocks = await n2m.pageToMarkdown(id);
+    finalizeCalloutBlocks(mdblocks);
     let md = n2m.toMarkdownString(mdblocks)["parent"];
 
     md = escapeCodeBlock(md);
     md = replaceTitleOutsideRawBlocks(md);
-    md = normalizeCalloutBlocks(md);
-    md = mergePromptContinuationBlocks(md);
+    md = normalizeLeadingTabIndentation(md);
 
     // 안전한 파일명 (언더스코어 사용)
     let slug = slugify(title, { lower: true, strict: true, replacement: "_" });
