@@ -13,6 +13,19 @@
 
     <a class="site-title d-block" href="{{ '/' | relative_url }}">{{ site.title }}</a>
     <p class="site-subtitle fst-italic mb-0">{{ site.tagline }}</p>
+
+    {% if site.analytics.goatcounter.id and site.pageviews.provider == 'goatcounter' %}
+      <section class="site-visitors mt-4" aria-label="Visitor counts">
+        <div class="visitor-metric d-flex justify-content-between align-items-center">
+          <span class="label">전체 방문</span>
+          <span id="sidebar-total-visitors" class="value">-</span>
+        </div>
+        <div class="visitor-metric d-flex justify-content-between align-items-center mt-2">
+          <span class="label">오늘 방문</span>
+          <span id="sidebar-daily-visitors" class="value">-</span>
+        </div>
+      </section>
+    {% endif %}
   </header>
   <!-- .profile-wrapper -->
 
@@ -93,5 +106,68 @@
     {% endfor %}
   </div>
   <!-- .sidebar-bottom -->
+
+  {% if site.analytics.goatcounter.id and site.pageviews.provider == 'goatcounter' %}
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const totalVisitors = document.getElementById('sidebar-total-visitors');
+        const dailyVisitors = document.getElementById('sidebar-daily-visitors');
+
+        if (totalVisitors === null || dailyVisitors === null) {
+          return;
+        }
+
+        const endpoint = 'https://{{ site.analytics.goatcounter.id }}.goatcounter.com/counter';
+        const formatCount = (value) => {
+          const digits = `${value || ''}`.replace(/\D/g, '');
+
+          if (digits === '') {
+            return '-';
+          }
+
+          return new Intl.NumberFormat().format(Number(digits));
+        };
+
+        const getKstDate = () => {
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: '{{ site.timezone }}',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).format(new Date());
+        };
+
+        const fetchCounter = async (path, params = {}) => {
+          const url = new URL(`${endpoint}/${encodeURIComponent(path)}.json`);
+
+          Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.set(key, value);
+          });
+
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            throw new Error(`GoatCounter request failed: ${response.status}`);
+          }
+
+          const data = await response.json();
+          return formatCount(data.count);
+        };
+
+        Promise.all([
+          fetchCounter('TOTAL'),
+          fetchCounter('TOTAL', { start: getKstDate() })
+        ])
+          .then(([totalCount, dailyCount]) => {
+            totalVisitors.innerText = totalCount;
+            dailyVisitors.innerText = dailyCount;
+          })
+          .catch(() => {
+            totalVisitors.innerText = '-';
+            dailyVisitors.innerText = '-';
+          });
+      });
+    </script>
+  {% endif %}
 </aside>
 <!-- #sidebar -->

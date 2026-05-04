@@ -11,10 +11,10 @@
         .then((response) => response.json())
         .then((data) => {
           const count = data.count.replace(/\D/g, '');
-          pv.innerText = new Intl.NumberFormat().format(count);
+          pv.innerText = count === '' ? '-' : new Intl.NumberFormat().format(count);
         })
-        .catch((error) => {
-          pv.innerText = '1';
+        .catch(() => {
+          pv.innerText = '-';
         });
     }
   });
