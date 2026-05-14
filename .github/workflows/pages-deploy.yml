@@ -29,10 +29,10 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      # Node ⬇︎ — 버전은 LTS(20) 권장
-      - uses: actions/setup-node@v4
+      # Project runtime for the importer script.
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
 
@@ -43,7 +43,7 @@ jobs:
           DATABASE_ID:  ${{ secrets.DATABASE_ID }}
 
       # 변경된 마크다운/이미지/manifest 커밋
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "[Auto] Notion posts update"
           branch: ${{ github.ref_name }}   # = main 또는 master
@@ -59,13 +59,13 @@ jobs:
 
     steps:
       - name: Checkout (fresh)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -84,7 +84,7 @@ jobs:
             --disable-external --checks html --allow-hash-href
 
       - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: "_site${{ steps.pages.outputs.base_path }}"
 
@@ -101,4 +101,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
