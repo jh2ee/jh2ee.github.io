@@ -1,0 +1,46 @@
+# Bundler cache
+.bundle/
+vendor/
+Gemfile.lock
+
+# Jekyll cache
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+_site/
+
+# RubyGems
+*.gem
+
+# NPM dependencies
+node_modules/
+
+# IDE configurations
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+
+# Local tool state
+.opencode/
+
+# Upstream docs not used in this repo
+docs/CODE_OF_CONDUCT.md
+docs/CONTRIBUTING.md
+docs/SECURITY.md
+
+# Editor backup files
+*~
+*.bak
+*.orig
+*.rej
+*.swo
+*.swp
+*.tmp
+_scripts/* copy.js
+
+# Misc
+.DS_Store
+.ipynb_checkpoints/
+*.ipynb

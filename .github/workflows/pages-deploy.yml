@@ -1,0 +1,104 @@
+name: "Import → Build → Deploy"
+
+on:
+  # 글이 푸시될 때마다 자동 실행
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - .gitignore
+      - README.md
+      - LICENSE
+  # 수동 실행
+  workflow_dispatch:
+  # 정기 실행 (예: 1시간마다)
+  schedule:
+    - cron: '0 * * * *'   # 필요 없으면 삭제
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  #### 1) Notion → _posts/ 변환 ####
+  importer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node ⬇︎ — 버전은 LTS(20) 권장
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm ci          # package.json, package-lock.json 기반 설치
+      - run: node _scripts/notion-import.js
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DATABASE_ID:  ${{ secrets.DATABASE_ID }}
+
+      # 변경된 마크다운/이미지/manifest 커밋
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "[Auto] Notion posts update"
+          branch: ${{ github.ref_name }}   # = main 또는 master
+
+  #### 2) Jekyll 빌드 ####
+  build:
+    needs: importer        # importer 끝난 뒤 실행
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+
+    steps:
+      - name: Checkout (fresh)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true
+
+      - name: Build site
+        run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
+        env:
+          JEKYLL_ENV: production
+
+      - name: Test site (optional)
+        run: |
+          bundle exec htmlproofer _site \
+            --disable-external --checks html --allow-hash-href
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site${{ steps.pages.outputs.base_path }}"
+
+  #### 3) GitHub Pages 배포 ####
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
