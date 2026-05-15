@@ -25,6 +25,8 @@ jobs:
   #### 1) Notion → _posts/ 변환 ####
   importer:
     runs-on: ubuntu-latest
+    outputs:
+      changes_detected: ${{ steps.auto_commit.outputs.changes_detected }}
     permissions:
       contents: write
 
@@ -43,7 +45,8 @@ jobs:
           DATABASE_ID:  ${{ secrets.DATABASE_ID }}
 
       # 변경된 마크다운/이미지/manifest 커밋
-      - uses: stefanzweifel/git-auto-commit-action@v7
+      - id: auto_commit
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "[Auto] Notion posts update"
           branch: ${{ github.ref_name }}   # = main 또는 master
@@ -51,17 +54,18 @@ jobs:
   #### 2) Jekyll 빌드 ####
   build:
     needs: importer        # importer 끝난 뒤 실행
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || needs.importer.outputs.changes_detected == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pages: write
 
     steps:
-      - name: Checkout (fresh)
+      - name: Checkout (latest branch state)
         uses: actions/checkout@v6
         with:
-          fetch-depth: 1
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
 
       - name: Setup Pages
         id: pages
