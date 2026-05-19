@@ -2,7 +2,7 @@
 layout: post
 date: 2026-05-15
 title: "[논문 리뷰] Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture"
-tags: [SSL, JEPA]
+tags: [SSL, JEPA, CVPR]
 categories: [Paper Review]
 ---
 
