@@ -1,8 +1,9 @@
 ---
 layout: post
-notion_page_id: "294ad5ef-e42b-8086-97b8-d01f29f53258"
 date: 2025-10-22
 title: "[논문 리뷰] GroupMamba: Efficient Group-Based Visual State Space Model"
+excerpt: "Abstract Vision에 있어 Mamba는 Scaling의 불안정, 비효율의 문제점 존재 Modulated Group Mamba 제안 input channel을 4개의 group으로 분할 4개의 direction 중 하나의 방향으로 scan하는 efficient Visual Single Selective Scanning(VSSS) block block을 각 group에 독립적으로 적용..."
+image: /assets/img/2025-10-22-groupmamba_efficient_groupbased_visual_state_space_model/0.png
 tags: [Mamba, CVPR]
 categories: [Paper Review]
 ---
@@ -12,11 +13,11 @@ categories: [Paper Review]
 
 - Vision에 있어 Mamba는 Scaling의 불안정, 비효율의 문제점 존재
 - Modulated Group Mamba 제안
-	- input channel을 4개의 group으로 분할
-	- 4개의 direction 중 하나의 방향으로 scan하는 efficient Visual Single Selective Scanning(VSSS) block
-	- block을 각 group에 독립적으로 적용
-	- 4개의 VSSS block을 channel modulation operator로 감싸 cross-channel communication 향상
-	- <span class="notion-red">_**distillation-based training**_</span> objective를 통해 large scale에서의 안정성, 성능 향상
+  - input channel을 4개의 group으로 분할
+  - 4개의 direction 중 하나의 방향으로 scan하는 efficient Visual Single Selective Scanning(VSSS) block
+  - block을 각 group에 독립적으로 적용
+  - 4개의 VSSS block을 channel modulation operator로 감싸 cross-channel communication 향상
+  - <span class="notion-red">_**distillation-based training**_</span> objective를 통해 large scale에서의 안정성, 성능 향상
 
 > **Distillation-based training?**
 >
@@ -25,15 +26,16 @@ categories: [Paper Review]
 {: .prompt-info }
 
 
+
 ## Introduction
 
 - 초기 SSM(S4)는 Vision과 같은 고밀도 data의 global context 처리에 한계 존재
 
-	→ Mamba는 S6를 도입해 입력 의존적인 selective-scan을 통해 long-term dependency 향상
+  → Mamba는 S6를 도입해 입력 의존적인 selective-scan을 통해 long-term dependency 향상
 
 - Mamba는 여전히 **scaling 문제** 존재 
 
-	→ model 커질 수록 학습 불안정 (instability)
+  → model 커질 수록 학습 불안정 (instability)
 
 - Mamba의 Vision 버전인 VSS(Visual State Space) block은 channel에 비례해 파라미터 및 계산 효율 등의 문제 존재
 
@@ -46,19 +48,21 @@ categories: [Paper Review]
 {: .prompt-tip }
 
 
+
 ## Method
 
 
 > ### Motivation
 >
 > - `Lack of Stability for Larger Models` : SiMBA-L (MLP)에서 확인된 문제
->   - MLP channel mixer 사용 시 parameter 수 확장 시 불안정
->   - **distillation objective**와** Modulated Group Mamba architecture**를 도입해 완화
-> - `Efficient Improved Interaction`
->   - **Modulated Group Mamba layer** 도입 → 기존 Mamba layer보다 parameter 절감
->   - **Multi-direction scan →** input token 단에서의 local, global information modeling
->   - **Channel Affinity Modulation** 도입 → Group 연산으로 인한 제한된 channel interaction 향상
+> 	- MLP channel mixer 사용 시 parameter 수 확장 시 불안정
+> 	- **distillation objective**와** Modulated Group Mamba architecture**를 도입해 완화
+> - `Efficient Improved Interaction` 
+> 	- **Modulated Group Mamba layer** 도입 → 기존 Mamba layer보다 parameter 절감
+> 	- **Multi-direction scan →** input token 단에서의 local, global information modeling
+> 	- **Channel Affinity Modulation** 도입 → Group 연산으로 인한 제한된 channel interaction 향상
 {: .prompt-tip }
+
 
 
 ### Preliminaries
@@ -154,13 +158,13 @@ X_{GM} = GroupedMamba(X_{in}, \Theta)
 $$
 
 - \Theta : 각 Mamba Block에 대한 operation parameter 집합
-	- \Delta, B, C 생성 위한 learnable parameters
-	- FFN의 linear projection 위한 W\_1, W\_2, b\_1, b\_2
+  - \Delta, B, C 생성 위한 learnable parameters
+  - FFN의 linear projection 위한 W\_1, W\_2, b\_1, b\_2
 - X와 \Theta 의 아래첨자는 각각 scan 방향을 의미함
-	- LR : Left to Right
-	- RL : Right to Left
-	- TB : Top to Bottom
-	- BT : Bottom to Top
+  - LR : Left to Right
+  - RL : Right to Left
+  - TB : Top to Bottom
+  - BT : Bottom to Top
 
 
 #### Channel Affinity Modulation (CAM)
@@ -197,6 +201,7 @@ $$
 > - Classification loss와 distillation loss를 최소화 하도록 Teacher model 기반의 Student model 학습
 > - Distillation loss는 teacher-student model 간의 CE objective로 계산
 {: .prompt-tip }
+
 
 $$
 \mathcal{L}_{total} = \alpha\mathcal{L}_{CE}(Z_s,y)+(1-\alpha)\mathcal{L}_{CE}(Z_S,y_t)

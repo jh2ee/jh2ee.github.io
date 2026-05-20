@@ -1,8 +1,9 @@
 ---
 layout: post
-notion_page_id: "248ad5ef-e42b-8040-a57e-c339d807dbac"
 date: 2025-08-07
 title: "[논문 리뷰] Differential Transformer"
+excerpt: "Ye, Tianzhu, et al. \"Differential transformer.\" arXiv preprint arXiv:2410.05258 (2024). Introduction Transformer의 핵심은 attention mechanism attention machanism은 softmax 함수를 통해 token의 중요도를 평가 그러나 LLM은 context에서 핵심 정보를 정확히..."
+image: /assets/img/2025-08-07-differential_transformer/0.png
 tags: [Transformer, ICLR2025]
 categories: [Paper Review]
 ---
@@ -17,7 +18,7 @@ categories: [Paper Review]
 - attention machanism은 softmax 함수를 통해 token의 중요도를 평가
 - 그러나 LLM은 context에서 핵심 정보를 정확히 파악하는 데 어려움을 겪음
 
-	> [Lost in the Middle: How Language Models Use Long Contextshttps://arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172)
+  > [Lost in the Middle: How Language Models Use Long Contextshttps://arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172)
 
 
 ![](/assets/img/2025-08-07-differential_transformer/0.png)
@@ -34,6 +35,7 @@ Figure 1의 왼쪽 그림을 보면 Transformer model이 정답에 낮은 attent
 
 
 > ### Attention noise?
+>
 >
 > : 정답이 아닌 token들에 나타나는 attention score
 {: .prompt-tip }
@@ -116,9 +118,9 @@ $$
 
 - λ\_{q\_1} , λ\_{k\_1} , λ\_{q\_2} , λ\_{k\_2} ∈ R^d : learnable vector
 - λ\_{init} \in (0,1) : 초기화 위한 constant, 0과 1 사이값
-	- 논문의 실험은 λ\_{init} = 0.8 − 0.6 × exp(−0.3 · (l − 1)) 로 초기화해 진행
-		- l \in [1,L] : layer index
-	- 단순히 0.8로 사용하는 것도 robust함
+  - 논문의 실험은 λ\_{init} = 0.8 − 0.6 × exp(−0.3 · (l − 1)) 로 초기화해 진행
+    - l \in [1,L] : layer index
+  - 단순히 0.8로 사용하는 것도 robust함
 
 
 #### **Multi-Head Differential Attention**
@@ -167,3 +169,4 @@ figure에는 표현하지 않았으나 MultiHead 이후, Normalize 이후 residu
 
 
 vanilla Transformer를 대체할만한 architecture인지는 조금 더 지켜봐야 할 것 같지만 실험 결과들만 보았을 때 parameter 측면에서, noise 제거 측면에서 꽤 괜찮은 성능을 보이는 것 같다. 구현 또한 어려운 편이 아니라 관련 연구들이 곧 쏟아져 나오지 않을까,,,
+

@@ -2,6 +2,8 @@
 layout: post
 date: 2026-01-22
 title: "[논문리뷰] Distinct neuroimaging subtypes of ADHD among adolescents based on semi-supervised learning"
+excerpt: "Abstract ADHD는 소아기에 발병하는 neurodevelopmental disorder(신경 발달 장애)로, 진단과 아형 분류가 임상적 특성에 기반해 주관적이며 신뢰성 부족. 임상적 subtype 분류는 예후에 대한 명확한 지표 제공 X → Semi-Supervised Learning 기반의 heterogenity 파악 method 제시 Adolescent Brian Cognitive..."
+image: /assets/img/2026-01-22-distinct_neuroimaging_subtypes_of_adhd_among_adolescents_based_on_semisupervised_learning/0.png
 tags: [ADHD, GAN]
 categories: [Paper Review]
 ---

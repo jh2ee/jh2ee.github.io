@@ -2,6 +2,8 @@
 layout: post
 date: 2026-05-14
 title: "[논문 리뷰] A Path Towards Autonomous Machine Intelligence"
+excerpt: "이 paper는 JEPA의 개념, 학습 방법 등에 대한 아이디어를 다루는 position paper이다. 구체적인 methods가 등장하기 보다는 world model의 개념과 방향성, 그것을 구현하기 위한 JEPA와 학습 방법에 대한 고찰을 담았다 Abstract 자율 지능 에이전트를 구축하기 위한 아키텍처와 학습 패러다임 제시 구성 가능한 예측 세계 모델, 내재적 동기에 의해 구동되는..."
+image: /assets/img/2026-05-14-a_path_towards_autonomous_machine_intelligence/0.png
 tags: [SSL, JEPA]
 categories: [Paper Review]
 ---

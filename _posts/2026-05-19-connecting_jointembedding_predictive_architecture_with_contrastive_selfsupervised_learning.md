@@ -2,6 +2,8 @@
 layout: post
 date: 2026-05-19
 title: "[논문 리뷰] Connecting joint-embedding predictive architecture with contrastive self-supervised learning"
+excerpt: "Mo, Shentong, and Shengbang Tong. \"Connecting joint-embedding predictive architecture with contrastive self-supervised learning.\" Advances in neural information processing systems 37 (2024): 2348-2377. I-JEPA의 구조적 한계로 인한..."
+image: /assets/img/2026-05-19-connecting_jointembedding_predictive_architecture_with_contrastive_selfsupervised_learning/0.png
 tags: [SSL, JEPA, NeurIPS]
 categories: [Paper Review]
 ---

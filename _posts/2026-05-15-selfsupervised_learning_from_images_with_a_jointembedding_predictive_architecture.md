@@ -2,6 +2,8 @@
 layout: post
 date: 2026-05-15
 title: "[논문 리뷰] Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture"
+excerpt: "Assran, Mahmoud, et al. \"Self-supervised learning from images with a joint-embedding predictive architecture.\" Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. 2023...."
+image: /assets/img/2026-05-15-selfsupervised_learning_from_images_with_a_jointembedding_predictive_architecture/0.png
 tags: [SSL, JEPA, CVPR]
 categories: [Paper Review]
 ---

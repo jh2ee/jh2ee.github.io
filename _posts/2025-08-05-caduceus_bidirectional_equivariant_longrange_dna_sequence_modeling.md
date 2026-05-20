@@ -1,8 +1,9 @@
 ---
 layout: post
-notion_page_id: "246ad5ef-e42b-80d9-8b0a-dcf63fce79d3"
 date: 2025-08-05
 title: "[논문 리뷰] Caduceus: Bi-Directional Equivariant Long-Range DNA Sequence Modeling"
+excerpt: "필자의 의견은 붉은색으로 표시됩니다 Schiff, Yair, et al. \"Caduceus: Bi-directional equivariant long-range dna sequence modeling.\" Proceedings of machine learning research 235 (2024): 43632. Introduction Challenges 저자들은 DNA modeling의 과제를..."
+image: /assets/img/2025-08-05-caduceus_bidirectional_equivariant_longrange_dna_sequence_modeling/0.png
 tags: [Genomics, Mamba]
 categories: [Paper Review]
 ---
@@ -36,6 +37,7 @@ _→ sequence model이 양방향 context를 처리해야 함을 의미_
 
 > ## **Background**
 >
+>
 > ### DNA
 >
 > - DNA는 A, T, G, C 네 가지의 nucleotide bases로 구성
@@ -49,6 +51,7 @@ _→ sequence model이 양방향 context를 처리해야 함을 의미_
 {: .prompt-tip }
 
 
+
 ## Methods
 
 
@@ -60,7 +63,7 @@ _→ sequence model이 양방향 context를 처리해야 함을 의미_
 
 1. 표준 Mamba model을 bi-directional로 변환하기 위해 Mamba module을 두 번 적용한다
 
-	_→ original sequence와 reverse sequence에 각각 한 번씩 적용_
+  _→ original sequence와 reverse sequence에 각각 한 번씩 적용_
 
 1. 정보 결합을 위해 reverse sequence의 output은 length dimension 기준으로 flip되어 forward sequence에 추가한다
 
@@ -157,12 +160,12 @@ $$
 
 - 채널 flip 연산인 _**flip\_chan**_은 다음과 같이 정의한다.
 
-	$$
-	flip\_chan(X^{1:D}_{1:T}):=(X^{D:1}_{1:T})
-	$$
+  $$
+  flip\_chan(X^{1:D}_{1:T}):=(X^{D:1}_{1:T})
+  $$
 
 
-	말 그대로 channel dimension만 뒤집어주는 연산이다
+  말 그대로 channel dimension만 뒤집어주는 연산이다
 
 
 
@@ -197,3 +200,4 @@ $$
 
 
 <span class="notion-red">그러나 model의 성능 향상과 parameter 효율성이라는 측면에 있어서는 좋은 결과를 보였기에 mamba가 long range understanding 작업에서 유용함을 증명하는 또 하나의 사례가 될 것 같다.</span>
+

@@ -2,6 +2,8 @@
 layout: post
 date: 2025-12-04
 title: "[논문 리뷰] Deep multimodality-disentangled association analysis network for imaging genetics in neurodegenerative diseases"
+excerpt: "Adversarial Autoencoder를 이용한 representation imputation 논문이다. AD와 PD 두 종류의 신경퇴행성 질환을 대상으로 연구했으며 metadata와 SNP 데이터를 이용해 imputation을 진행한다. 임상에서는 SNP데이터가 없는 sample이 대부분이라 실적용에는 한계가 있어보인다. --- --- Introduction 신경퇴행성 질환,..."
+image: /assets/img/2025-12-04-deep_multimodalitydisentangled_association_analysis_network_for_imaging_genetics_in_neurodegenerative_diseases/0.png
 tags: [MLMM, Alzheimer's Disease, MedIA]
 categories: [Paper Review]
 ---
