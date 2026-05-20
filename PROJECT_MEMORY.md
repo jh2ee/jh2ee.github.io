@@ -15,6 +15,7 @@
 - 테마 베이스: `jekyll-theme-chirpy`
 - 게시물 원본: `_posts/*.md`
 - Notion importer: `_scripts/notion-import.js`
+- Notion write-back: `_scripts/notion-writeback.js`
 - 배포 워크플로: `.github/workflows/pages-deploy.yml`
 - JS 번들 결과물: `assets/js/dist/*.min.js`
 - PurgeCSS 결과물: `_sass/vendors/_bootstrap.scss`
@@ -40,6 +41,13 @@
 - `DATABASE_ID`
 
 GitHub Actions secrets로 주입된다.
+
+### write-back 입력
+
+- `NOTION_TOKEN`
+- `DATABASE_ID` (`--create-missing`로 새 page 생성할 때만)
+
+로컬에서 수동 실행한다.
 
 ### importer가 하는 일
 

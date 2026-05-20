@@ -15,6 +15,11 @@ _site/
 # NPM dependencies
 node_modules/
 
+# Local secrets
+.env
+.env.*
+!.env.example
+
 # IDE configurations
 .idea/
 .vscode/*

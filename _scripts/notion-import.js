@@ -166,6 +166,66 @@ function trimBlankLines(markdown) {
   return lines.join("\n");
 }
 
+function collapseWhitespace(value) {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function escapeYamlDoubleQuotedString(value) {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function stripMarkdownForExcerpt(body) {
+  const bodyWithoutRawBlocks = body.replace(/{% raw %}[\s\S]*?{% endraw %}/g, " ");
+
+  return collapseWhitespace(
+    bodyWithoutRawBlocks
+      .replace(/\n\{:\s*\.prompt-[^}]+\}/g, " ")
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/<\/?.*?>/g, " ")
+      .replace(/^#{1,6}\s+/gm, "")
+      .replace(/^>\s?/gm, "")
+      .replace(/^\s*[-*+]\s+/gm, "")
+      .replace(/^\s*\d+\.\s+/gm, "")
+      .replace(/`+/g, "")
+      .replace(/[~*_]/g, "")
+      .replace(/\n+/g, " ")
+  );
+}
+
+function buildExcerpt(body, maxLength = 220) {
+  const plain = stripMarkdownForExcerpt(body);
+
+  if (plain === "") {
+    return "";
+  }
+
+  if (plain.length <= maxLength) {
+    return plain;
+  }
+
+  let trimmed = plain.slice(0, maxLength + 1);
+  const boundary = Math.max(
+    trimmed.lastIndexOf(". "),
+    trimmed.lastIndexOf("? "),
+    trimmed.lastIndexOf("! "),
+    trimmed.lastIndexOf(" ")
+  );
+
+  if (boundary > Math.floor(maxLength * 0.6)) {
+    trimmed = trimmed.slice(0, boundary).trim();
+  } else {
+    trimmed = trimmed.slice(0, maxLength).trim();
+  }
+
+  return `${trimmed}...`;
+}
+
+function getFirstLocalizedImagePath(body) {
+  const match = body.match(/!\[[^\]]*\]\((\/assets\/img\/[^)\s]+)\)/);
+  return match ? match[1] : "";
+}
+
 function quoteMarkdown(markdown) {
   const normalized = trimBlankLines(markdown);
 
@@ -310,6 +370,23 @@ async function writeManifest(manifest) {
   );
 }
 
+async function needsFrontMatterRefresh(postPath) {
+  try {
+    const post = await fsp.readFile(postPath, "utf8");
+    const hasExcerpt = /\nexcerpt:\s/.test(post);
+    const hasImage = /\nimage:\s/.test(post);
+    const hasLocalizedImage = /!\[[^\]]*\]\((\/assets\/img\/[^)\s]+)\)/.test(post);
+
+    return !hasExcerpt || (hasLocalizedImage && !hasImage);
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return true;
+    }
+
+    throw error;
+  }
+}
+
 async function removePath(targetPath) {
   await fsp.rm(targetPath, { recursive: true, force: true });
 }
@@ -429,11 +506,15 @@ n2m.setCustomTransformer("text", async (block) => { ... });
   for (const r of pages) {
     const id = r.id;
     const previousEntry = previousPages[id];
+    const previousPostNeedsRefresh = previousEntry?.postPath
+      ? await needsFrontMatterRefresh(previousEntry.postPath)
+      : false;
 
     if (
       previousEntry?.lastEditedTime === r.last_edited_time &&
       previousEntry.postPath &&
-      fs.existsSync(previousEntry.postPath)
+      fs.existsSync(previousEntry.postPath) &&
+      !previousPostNeedsRefresh
     ) {
       nextPages[id] = previousEntry;
       continue;
@@ -487,17 +568,6 @@ n2m.setCustomTransformer("text", async (block) => { ... });
     //   }
     //   fmcats += "]";
     // }
-    const fmtags = tags.length ? `\ntags: [${tags.join(", ")}]` : "";
-    const fmcats = cats.length ? `\ncategories: [${cats.join(", ")}]` : "";
-    const safeTitle = title.replace(/"/g, '\\"');
-
-    const fm = `---
-layout: post
-date: ${date}
-title: "${safeTitle}"${fmtags}${fmcats}
----
-`;
-
     // Markdown 변환
     const mdblocks = await n2m.pageToMarkdown(id);
     finalizeCalloutBlocks(mdblocks);
@@ -532,6 +602,20 @@ title: "${safeTitle}"${fmtags}${fmcats}
     await removePath(assetDir);
 
     const editedMd = await localizeImagesOutsideRawBlocks(md, postName);
+    const excerpt = buildExcerpt(editedMd);
+    const imagePath = getFirstLocalizedImagePath(editedMd);
+    const fmtags = tags.length ? `\ntags: [${tags.join(", ")}]` : "";
+    const fmcats = cats.length ? `\ncategories: [${cats.join(", ")}]` : "";
+    const fmExcerpt = excerpt ? `\nexcerpt: "${escapeYamlDoubleQuotedString(excerpt)}"` : "";
+    const fmImage = imagePath ? `\nimage: ${imagePath}` : "";
+    const safeTitle = escapeYamlDoubleQuotedString(title);
+
+    const fm = `---
+layout: post
+date: ${date}
+title: "${safeTitle}"${fmExcerpt}${fmImage}${fmtags}${fmcats}
+---
+`;
 
     await fsp.writeFile(postPath, fm + editedMd);
 

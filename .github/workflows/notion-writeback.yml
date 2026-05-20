@@ -1,0 +1,51 @@
+name: "Notion Write-back"
+
+on:
+  workflow_dispatch:
+    inputs:
+      post_path:
+        description: "_posts path to sync back to Notion"
+        required: false
+        type: string
+      create_missing:
+        description: "Create a new Notion page if no manifest mapping exists"
+        required: false
+        default: false
+        type: boolean
+      sync_all:
+        description: "Sync all manifest-backed posts"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  writeback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Write posts back to Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DATABASE_ID: ${{ secrets.DATABASE_ID }}
+          SITE_URL: https://jh2ee.github.io
+        run: |
+          if [ "${{ inputs.sync_all }}" = "true" ]; then
+            npm run notion:push:all
+          elif [ -n "${{ inputs.post_path }}" ]; then
+            if [ "${{ inputs.create_missing }}" = "true" ]; then
+              npm run notion:push -- --create-missing "${{ inputs.post_path }}"
+            else
+              npm run notion:push -- "${{ inputs.post_path }}"
+            fi
+          else
+            printf '%s\n' 'Set post_path or enable sync_all.'
+            exit 1
+          fi
