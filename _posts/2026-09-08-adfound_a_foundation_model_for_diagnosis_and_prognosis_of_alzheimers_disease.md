@@ -1,7 +1,7 @@
 ---
 layout: post
 date: 2026-09-08
-title: "ADFound: A Foundation Model for Diagnosis and Prognosis of Alzheimer’s Disease"
+title: "[논문리뷰] ADFound: A Foundation Model for Diagnosis and Prognosis of Alzheimer’s Disease"
 excerpt: "Abstract 기존의 multimodal AD 모델은 특정 작업에 특화되어 있고, 일반화 능력이 부족함 최초의 AD용 multimodal foundation model ADFound 제시 Unpair 데이터, unlabeled 데이터 포함한 학습 장거리 의존성 파악 위한 Vision Mamba 기반 인코더 Multimodal MAE와 Contrastive Learning 통합 --- ---..."
 image: /assets/img/2026-09-08-adfound_a_foundation_model_for_diagnosis_and_prognosis_of_alzheimers_disease/0.png
 tags: [Alzheimer's Disease, JHBI, SSL]
